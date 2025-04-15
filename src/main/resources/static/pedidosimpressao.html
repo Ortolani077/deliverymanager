@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pedidos para Impressão</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .impresso {
+      background-color: #d4edda !important;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .material-icons {
+      font-size: 18px;
+    }
+
+    /* Modal */
+    #modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    #modalContent {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      margin: 100px auto;
+      text-align: center;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      margin: 0 5px;
+    }
+
+    #mensagem {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Pedidos para Impressão</h1>
+  <button class="back-button" onclick="window.location.href='http://localhost:8082/inicio.html'">Voltar para Página Inicial</button>
+  
+  <table id="tabelaPedidos">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Telefone</th>
+        <th>Data</th>
+        <th>Itens</th>
+        <th>Entrega</th>
+        <th>Endereço</th>
+        <th>Total</th>
+        <th>Observações</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="mensagem"></div>
+
+  <!-- Modal -->
+  <div id="modal">
+    <div id="modalContent">
+      <p>Deseja imprimir este pedido?</p>
+      <div class="modal-buttons">
+        <button onclick="confirmarImpressao()">Sim</button>
+        <button onclick="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let idParaImprimir = null;
+    let botaoAtual = null;
+
+    async function carregarPedidos() {
+      try {
+        const response = await fetch('/api/pedidos/para-impressao');
+        if (!response.ok) throw new Error('Erro ao carregar pedidos');
+        const pedidos = await response.json();
+
+        const tbody = document.querySelector('#tabelaPedidos tbody');
+        tbody.innerHTML = '';
+
+        pedidos.forEach(pedido => {
+          const tr = document.createElement('tr');
+
+          if (pedido.impresso) {
+            tr.classList.add('impresso');
+            setTimeout(() => tr.remove(), 12 * 60 * 60 * 1000);
+          }
+
+          const itensHTML = pedido.itens.map(item => `
+            ${item.produto?.nome || 'Produto'} (x${item.quantidade}) - R$${item.preco.toFixed(2)}
+          `).join('<br>');
+
+          tr.innerHTML = `
+            <td>${pedido.id}</td>
+            <td>${pedido.cliente?.nome || '---'}</td>
+            <td>${pedido.cliente?.telefone || '---'}</td>
+            <td>${new Date(pedido.dataPedido).toLocaleString('pt-BR')}</td>
+            <td>${itensHTML}</td>
+            <td>${pedido.entrega ? 'Sim' : 'Não'}</td>
+            <td>${pedido.enderecoCliente || '---'}</td>
+            <td>R$${pedido.preco.toFixed(2)}</td>
+            <td>${pedido.observacoes || '---'}</td>
+            <td>
+              <button onclick="abrirModal(${pedido.id}, this)">
+                <span class="material-icons">print</span> ${pedido.impresso ? 'Reimprimir' : 'Imprimir'}
+              </button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+        mostrarMensagem('Erro ao carregar pedidos.', 'red');
+      }
+    }
+
+    function abrirModal(id, botao) {
+      idParaImprimir = id;
+      botaoAtual = botao;
+      document.getElementById('modal').style.display = 'block';
+    }
+
+    function fecharModal() {
+      idParaImprimir = null;
+      botaoAtual = null;
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    async function confirmarImpressao() {
+      if (!idParaImprimir || !botaoAtual) return;
+
+      botaoAtual.disabled = true;
+      botaoAtual.innerHTML = '<span class="material-icons">print</span> Imprimindo...';
+
+      const resposta = await fetch(`/api/pedidos/${idParaImprimir}/imprimir`, {
+        method: 'PUT',
+      });
+
+      const row = botaoAtual.closest('tr');
+
+      if (resposta.ok) {
+        row.classList.add('impresso');
+        botaoAtual.innerHTML = '<span class="material-icons">print</span> Reimprimir';
+        mostrarMensagem('Pedido impresso com sucesso!', 'green');
+        setTimeout(() => row.remove(), 12 * 60 * 60 * 1000);
+      } else {
+        botaoAtual.innerHTML = '<span class="material-icons">print</span> Tentar novamente';
+        mostrarMensagem('Erro ao imprimir o pedido.', 'red');
+      }
+
+      botaoAtual.disabled = false;
+      fecharModal();
+    }
+
+    function mostrarMensagem(texto, cor) {
+      const msg = document.getElementById('mensagem');
+      msg.textContent = texto;
+      msg.style.color = cor;
+      setTimeout(() => msg.textContent = '', 4000);
+    }
+
+    // Carrega pedidos inicialmente
+    carregarPedidos();
+
+    // Recarrega pedidos a cada 30 segundos
+    setInterval(carregarPedidos, 30000);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Produtos Mais Vendidos</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .filters {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .back-button {
+            background: #2196F3;
+            margin-bottom: 20px;
+        }
+        .back-button:hover {
+            background: #0b7dda;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .loading {
+            background: #e7f3fe;
+            color: #2196F3;
+        }
+        .error {
+            background: #ffdddd;
+            color: #f44336;
+        }
+        .success {
+            background: #ddffdd;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='http://localhost:8082/inicio.html'">Voltar para Página Inicial</button>
+    
+    <h1>Relatório de Produtos Mais Vendidos</h1>
+    
+    <div class="filters">
+        <div class="filter-group">
+            <label for="dataInicio">Data Início:</label>
+            <input type="date" id="dataInicio">
+        </div>
+        <div class="filter-group">
+            <label for="dataFim">Data Fim:</label>
+            <input type="date" id="dataFim">
+        </div>
+        <button onclick="carregarRelatorio()">Filtrar</button>
+    </div>
+
+    <div id="status" class="status loading">Selecione as datas e clique em Filtrar</div>
+
+    <table id="relatorioTabela">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th class="text-right">Quantidade</th>
+                <th class="text-right">Preço Unitário</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados serão carregados aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        // Mapeamento de preços - substitua com os valores reais dos seus produtos
+        const precosProdutos = {
+            "Vinho Tinto": 25.90,
+            "Coca-Cola": 5.50,
+            "Meia Pizza Margherita": 18.00,
+            "Pizza Inteira Frango com Catupiry": 35.00,
+            "Pizza Inteira Quatro Queijos": 35.00,
+            "Esfiha de Espinafre": 7.00,
+            "Sprite": 5.00,
+            "Pizza Inteira Portuguesa": 35.00,
+            "Pizza Inteira Pepperoni": 38.00,
+            "Pizza Inteira Marguerita Doce": 32.00,
+            "Meia Pizza Mousse de Maracujá": 15.00,
+            "Meia Pizza Tiramisu": 16.00,
+            "Esfiha de Cogumelo": 7.50,
+            "Esfiha de Frango": 6.00,
+            "Suco de Uva": 8.00,
+            "Cerveja": 9.00
+        };
+
+        function formatarMoeda(valor) {
+            return 'R$ ' + valor.toFixed(2).replace('.', ',');
+        }
+
+        function carregarRelatorio() {
+            const dataInicio = $('#dataInicio').val();
+            const dataFim = $('#dataFim').val();
+
+            if (!dataInicio || !dataFim) {
+                $('#status').removeClass().addClass('status error').text('Por favor, preencha ambas as datas!');
+                return;
+            }
+
+            $('#status').removeClass().addClass('status loading').text('Carregando dados...');
+            $('#relatorioTabela tbody').empty();
+
+            console.log('Enviando requisição para o relatório...');
+
+            $.ajax({
+                url: 'http://localhost:8082/relatorios/produtos-mais-vendidos',
+                method: 'GET',
+                data: { 
+                    dataInicio: dataInicio,
+                    dataFim: dataFim 
+                },
+                success: function(response) {
+                    console.log('Dados recebidos:', response);
+                    
+                    if (response && response.length > 0) {
+                        const tabela = $('#relatorioTabela tbody');
+                        tabela.empty();
+
+                        response.forEach(item => {
+                            const nomeProduto = item.nomeProduto;
+                            const quantidade = item.quantidadeVendida;
+                            const precoUnitario = precosProdutos[nomeProduto] || 0;
+                            const total = precoUnitario * quantidade;
+
+                            tabela.append(`
+                                <tr>
+                                    <td>${nomeProduto}</td>
+                                    <td class="text-right">${quantidade}</td>
+                                    <td class="text-right">${formatarMoeda(precoUnitario)}</td>
+                                    <td class="text-right">${formatarMoeda(total)}</td>
+                                </tr>
+                            `);
+                        });
+
+                        $('#status').removeClass().addClass('status success').text(`Dados carregados com sucesso - ${response.length} itens encontrados`);
+                    } else {
+                        $('#status').removeClass().addClass('status').text('Nenhum dado encontrado para o período selecionado');
+                        $('#relatorioTabela tbody').append('<tr><td colspan="4">Nenhum resultado encontrado</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao carregar dados:', error);
+                    $('#status').removeClass().addClass('status error').text('Erro ao carregar dados. Verifique o console para detalhes.');
+                    $('#relatorioTabela tbody').append('<tr><td colspan="4">Erro ao carregar dados</td></tr>');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // Define datas padrão (últimos 30 dias)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 30);
+            
+            $('#dataInicio').val(startDate.toISOString().split('T')[0]);
+            $('#dataFim').val(endDate.toISOString().split('T')[0]);
+            
+            // Carrega dados iniciais
+            carregarRelatorio();
+        });
+    </script>
+</body>
+</html>

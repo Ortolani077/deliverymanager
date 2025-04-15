@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Página Inicial</title>
+</head>
+<body>
+
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Pedidos</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="scripts.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Gerenciamento de Pedidos</h1>
+        <nav>
+            <ul>
+                <li><a href="javascript:void(0);" onclick="toggleSection('listar-view')">Pesquisar pedidos</a></li>
+				<li><a href="http://localhost:8082/relatorio.html">Relatórios</a></li>
+				
+				
+				
+				<li><a href="http://localhost:8082/pedidosimpressao.html">Novos Pedidos</a></li>
+				
+
+                <li><a href="javascript:void(0);" onclick="logout();">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Seção Criar Pedido -->
+        <section id="criar-pedido" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('criar-pedido')">X</button>
+            <h3>Criar Pedido</h3>
+            <form onsubmit="event.preventDefault(); criarPedido();">
+                <label for="nomeCliente">Nome do Cliente:</label>
+                <input type="text" id="nomeCliente" required><br>
+                
+                <label for="telefoneCliente">Telefone do Cliente:</label>
+                <input type="text" id="telefoneCliente" required><br>
+                
+                <label for="enderecoCliente">Endereço do Cliente:</label>
+                <input type="text" id="enderecoCliente" required><br>
+                
+                <label for="entrega">Entrega:</label>
+                <input type="checkbox" id="entrega"><br>
+                
+                <label for="observacoes">Observações:</label>
+                <input type="text" id="observacoes"><br>
+                
+                <label for="preco">Preço:</label>
+                <input type="number" id="preco" step="0.01" required><br>
+                
+                <button type="submit">Criar Pedido</button>
+            </form>
+        </section>
+        
+        <!-- Seção Listar Pedidos -->
+        <section id="listar-pedidos" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('listar-pedidos')">X</button>
+            <h3>Listar Todos os Pedidos</h3>
+            <button onclick="listarPedidos()">Listar Pedidos</button>
+            <input type="text" id="filtro" placeholder="Filtrar pedidos">
+            <table id="pedidosList">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do Cliente</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th>Preço</th>
+                        <th>Data do Pedido</th>
+                        <th>Quantidade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aqui serão listados os pedidos em formato de tabela -->
+                </tbody>
+            </table>
+        </section>
+        
+		<!-- Seção Listar Pedidos da View -->
+		<section id="listar-view" class="hidden-section">
+		    <button class="close-btn" onclick="toggleSection('listar-view')">X</button>
+		    <h3>Listar Pedidos da View</h3>
+		    <div>
+		        <label for="dataInicio">Data de Início:</label>
+		        <input type="date" id="dataInicio" name="dataInicio">
+		        <label for="dataFim">Data de Fim:</label>
+		        <input type="date" id="dataFim" name="dataFim">
+		        <button onclick="listarPedidosDaView()">Filtrar</button>
+		    </div>
+		    <table id="pedidosViewList">
+		        <thead>
+		            <tr>
+		                <th>ID</th>
+		                <th>Data do Pedido</th>
+		                <th>Nome do Cliente</th>
+		                <th>Endereço</th>
+		                <th>Tipo de Entrega</th>
+		                <th>Itens do Pedido</th>
+		                <th>Preço</th>
+		                <th>Observações</th>
+		                <th>Ações</th>
+		            </tr>
+		        </thead>
+		        <tbody>
+		            <!-- Pedidos da view serão listados aqui -->
+		        </tbody>
+		    </table>
+		</section>
+
+
+        <!-- Seção Editar Pedido -->
+        <section id="editar-pedido" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('editar-pedido')">X</button>
+            <h3>Editar Pedido</h3>
+            <input type="number" id="pedidoIdEditar" placeholder="ID do Pedido"><br>
+            <label for="nomeClienteEditar">Nome do Cliente:</label>
+            <input type="text" id="nomeClienteEditar" required><br>
+            <label for="telefoneClienteEditar">Telefone do Cliente:</label>
+            <input type="text" id="telefoneClienteEditar" required><br>
+            <label for="enderecoClienteEditar">Endereço do Cliente:</label>
+            <input type="text" id="enderecoClienteEditar" required><br>
+            <label for="entregaEditar">Entrega:</label>
+            <input type="checkbox" id="entregaEditar"><br>
+            <label for="observacoesEditar">Observações:</label>
+            <input type="text" id="observacoesEditar"><br>
+            <label for="precoEditar">Preço:</label>
+            <input type="number" id="precoEditar" step="0.01" required><br>
+            <button onclick="editarPedido()">Editar Pedido</button>
+        </section>
+        
+        <!-- Seção Excluir Pedido -->
+        <section id="excluir-pedido" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('excluir-pedido')">X</button>
+            <h3>Excluir Pedido</h3>
+            <input type="number" id="pedidoIdExcluir" placeholder="ID do Pedido">
+            <button onclick="excluirPedido()">Excluir Pedido</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Gerenciamento de Pedidos. Todos os direitos reservados.</p>
+    </footer>
+>>>>>>> 239301d (Gerenciamento de pedidos)
+</body>
+</html>
