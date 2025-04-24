@@ -10,43 +10,40 @@ otimizando a operação do restaurante.
 
 - **Login com autenticação JWT**: Permite que funcionários realizem login no sistema utilizando JWT para autenticação segura.
 
-![Tela 1: Login com Autenticação JWT](./images/tela1.png)
+![Tela 1: Login com Autenticação JWT](./tela1.png)
 
 - **Dashboard com gráfico de produtos mais vendidos**: O sistema exibe um gráfico interativo com os produtos mais vendidos, fornecendo insights sobre as preferências dos clientes.
 
-![Tela 2: Dashboard com Gráfico de Produtos Mais Vendidos](./images/tela2.png)
+![Tela 2: Dashboard com Gráfico de Produtos Mais Vendidos](./tela2.png)
 
 - **Pesquisa de pedidos por data**: Permite que os administradores do sistema pesquisem pedidos realizados em uma data específica.
 
-![Tela 3: Pesquisa de Pedidos por Data](./images/tela3.png)
+![Tela 3: Pesquisa de Pedidos por Data](./tela3.png)
 
 - **Lista de pedidos filtrados por data**: Visualize a lista de pedidos filtrada por data, facilitando a consulta dos pedidos feitos em determinado período.
 
-![Tela 4: Lista de Pedidos Filtrados por Data](./images/tela4.png)
+![Tela 4: Lista de Pedidos Filtrados por Data](./tela4.png)
 
 - **Tela para pesquisar e emitir relatório de produtos mais vendidos**: A tela permite que o administrador pesquise e gere relatórios sobre os produtos mais vendidos.
 
-![Tela 5: Relatório de Produtos Mais Vendidos](./images/tela5.png)
+![Tela 5: Relatório de Produtos Mais Vendidos](./tela5.png)
 
 - **Modelo de relatório na tela**: Exibição do modelo de relatório, facilitando a visualização e análise dos dados.
 
-![Tela 6: Modelo de Relatório na Tela](./images/tela6.png)
+![Tela 6: Modelo de Relatório na Tela](./tela6.png)
 
-- **Modelos em PDF de relatório**: O sistema permite a geração de relatórios em formato PDF.
-
-![Tela 7: Modelos em PDF de Relatório](./images/tela7.png)
 
 - **Modelo de impressão para relatório**: O sistema fornece um modelo para impressão dos relatórios gerados.
 
-![Tela 8: Modelo de Impressão para Relatório](./images/tela8.png)
+![Tela 8: Modelo de Impressão para Relatório](./tela8.png)
 
 - **Tela de novos pedidos**: Exibe a lista de pedidos recém-criados, permitindo que o restaurante visualize e gerencie os pedidos mais recentes.
 
-![Tela 9: Tela de Novos Pedidos](./images/tela9.png)
+![Tela 9: Tela de Novos Pedidos](./tela9.png)
 
 - **Tela de conclusão de pedido**: Tela de finalização onde o status do pedido é atualizado e o pedido é marcado como concluído.
 
-![Tela 10: Conclusão de Pedido](./images/tela10.png)
+![Tela 10: Conclusão de Pedido](./tela10.png)
 
 ## Tecnologias Usadas
 
