@@ -1,0 +1,402 @@
+/**
+ * Função para alternar a visibilidade das seções com animação de colapso
+ * @param {string} sectionId - ID da seção a ser exibida
+ */
+function toggleSection(sectionId) {
+    // Esconde todas as seções
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => {
+        section.classList.add('hidden-section');
+    });
+
+    // Exibe a seção selecionada
+    const sectionToShow = document.getElementById(sectionId);
+    if (sectionToShow) {
+        sectionToShow.classList.remove('hidden-section');
+        
+        // Adiciona evento de clique no botão de fechar (se existir)
+        const closeBtn = sectionToShow.querySelector('.close-section');
+        if (closeBtn) {
+            closeBtn.onclick = () => sectionToShow.classList.add('hidden-section');
+        }
+    } else {
+        console.error(`Seção com ID '${sectionId}' não encontrada.`);
+    }
+}
+
+/**
+ * Função para realizar logout do usuário
+ */
+function logout() {
+    console.log('Iniciando processo de logout...');
+
+    fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao fazer logout.');
+        return response.text();
+    })
+    .then(() => {
+        console.log('Logout bem-sucedido.');
+        
+        // Limpar tokens
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        localStorage.removeItem('token');
+        
+        // Redirecionar após pequeno delay
+        setTimeout(() => {
+            window.location.replace('http://localhost:8082/index.html');
+        }, 100);
+    })
+    .catch(error => {
+        console.error('Erro ao fazer logout:', error);
+        alert('Erro ao fazer logout. Tente novamente.');
+    });
+}
+
+/**
+ * Função para criar um novo pedido
+ */
+function criarPedido() {
+    // Obter valores dos campos
+    const nomeCliente = document.getElementById('nomeCliente').value.trim();
+    const telefoneCliente = document.getElementById('telefoneCliente').value.trim();
+    const enderecoCliente = document.getElementById('enderecoCliente').value.trim();
+    const entrega = document.getElementById('entrega').checked;
+    const observacoes = document.getElementById('observacoes').value.trim();
+    const preco = parseFloat(document.getElementById('preco').value);
+
+    // Validação básica
+    if (!nomeCliente || !telefoneCliente || !preco) {
+        alert('Por favor, preencha os campos obrigatórios!');
+        return;
+    }
+
+    // Montar objeto do pedido
+    const pedido = {
+        nomeCliente,
+        telefoneCliente,
+        enderecoCliente,
+        entrega,
+        observacoes,
+        preco
+    };
+
+    // Enviar requisição
+    fetch('/api/pedidos/criar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pedido)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao criar pedido.');
+        return response.json();
+    })
+    .then(() => {
+        alert('Pedido criado com sucesso!');
+        document.querySelector('form').reset();
+    })
+    .catch(error => {
+        alert('Erro ao criar pedido!');
+        console.error('Erro:', error);
+    });
+}
+
+/**
+ * Função para listar todos os pedidos
+ */
+function listarPedidos() {
+    fetch('/api/pedidos/listar')
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao listar pedidos.');
+        return response.json();
+    })
+    .then(data => {
+        const pedidosList = document.getElementById('pedidosList').getElementsByTagName('tbody')[0];
+        pedidosList.innerHTML = '';
+
+        data.forEach(pedido => {
+            const row = pedidosList.insertRow();
+            row.innerHTML = `
+                <td>${pedido.id}</td>
+                <td>${pedido.nomeCliente}</td>
+                <td>${pedido.telefoneCliente}</td>
+                <td>${pedido.enderecoCliente}</td>
+                <td>${pedido.preco.toFixed(2)}</td>
+                <td>${new Date(pedido.dataPedido).toLocaleString()}</td>
+                <td>${pedido.quantidade}</td>
+            `;
+        });
+    })
+    .catch(error => {
+        alert('Erro ao listar pedidos!');
+        console.error('Erro:', error);
+    });
+}
+
+/**
+ * Função para listar pedidos por período com detalhes
+ */
+function listarPedidosDaView() {
+    const dataInicio = document.getElementById('dataInicio').value;
+    const dataFim = document.getElementById('dataFim').value;
+
+    if (!dataInicio || !dataFim) {
+        alert('Por favor, preencha as datas corretamente!');
+        return;
+    }
+
+    fetch(`/api/pedidos/listar-por-data?dataInicio=${dataInicio}&dataFim=${dataFim}`)
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao listar pedidos.');
+        return response.json();
+    })
+    .then(data => {
+        const pedidosViewList = document.getElementById('pedidosViewList').getElementsByTagName('tbody')[0];
+        pedidosViewList.innerHTML = '';
+
+        data.forEach(pedido => {
+            const id = pedido.id || 'N/A';
+            const nomeCliente = pedido.cliente ? pedido.cliente.nome : 'N/A';
+            const enderecoCliente = pedido.enderecoCliente || 'N/A';
+            const tipoEntrega = pedido.entrega ? 'Entrega' : 'Retirada';
+            const preco = pedido.preco ? pedido.preco.toFixed(2) : 'N/A';
+            const observacoes = pedido.observacoes || 'Sem observações';
+            const dataPedido = pedido.dataPedido ? new Date(pedido.dataPedido).toLocaleString('pt-BR') : 'N/A';
+
+            const itensPedido = pedido.itens && pedido.itens.length > 0
+                ? pedido.itens.map(item => {
+                    const produto = item.produto || {};
+                    const nomeProduto = produto.nome || 'N/A';
+                    const descricaoProduto = produto.descricao || 'Sem descrição disponível';
+                    const precoUnitario = produto.preco ? produto.preco.toFixed(2) : '0.00';
+                    const quantidade = item.quantidade || 1;
+                    const precoTotalItem = (quantidade * produto.preco || 0).toFixed(2);
+
+                    return `
+                        <li class="item-detalhe">
+                            <div>
+                                <span><strong>Produto:</strong> ${nomeProduto}</span><br>
+                                <span><strong>Descrição:</strong> ${descricaoProduto}</span><br>
+                            </div>
+                            <div>
+                                <span><strong>Quantidade:</strong> ${quantidade}</span><br>
+                                <span><strong>Preço Unitário:</strong> R$ ${precoUnitario}</span><br>
+                                <span><strong>Total:</strong> R$ ${precoTotalItem}</span>
+                            </div>
+                        </li>
+                    `;
+                }).join('')
+                : '<li class="item-detalhe vazio">Nenhum item encontrado</li>';
+
+            const row = pedidosViewList.insertRow();
+            row.innerHTML = `
+                <td><strong>${id}</strong></td>
+                <td>${dataPedido}</td>
+                <td>${nomeCliente}</td>
+                <td>${enderecoCliente}</td>
+                <td>${tipoEntrega}</td>
+                <td>
+                    <div class="itens-pedido-container">
+                        <ul class="lista-itens">${itensPedido}</ul>
+                    </div>
+                </td>
+                <td><strong>R$ ${preco}</strong></td>
+                <td>${observacoes}</td>
+                <td>
+                    <button class="btn-excluir" data-id="${id}">Excluir</button>
+                </td>
+            `;
+        });
+    })
+    .catch(error => {
+        alert(`Erro ao listar pedidos: ${error.message}`);
+        console.error('Erro:', error);
+    });
+}
+
+/**
+ * Função para excluir um pedido
+ * @param {string} id - ID do pedido a ser excluído
+ */
+function excluirPedido(id) {
+    if (!id) {
+        alert('ID do pedido não fornecido.');
+        return;
+    }
+
+    if (!confirm(`Tem certeza que deseja excluir o pedido ${id}?`)) {
+        return;
+    }
+
+    fetch(`/api/pedidos/excluir/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao excluir pedido.');
+        return response.text();
+    })
+    .then(text => {
+        if (text.trim() === "") {
+            alert(`Pedido ${id} excluído com sucesso!`);
+        } else {
+            const data = JSON.parse(text);
+            alert(`Pedido ${id} excluído: ${data.message}`);
+        }
+        listarPedidosDaView();
+    })
+    .catch(error => {
+        alert('Erro ao excluir pedido!');
+        console.error('Erro:', error);
+    });
+}
+
+/**
+ * Função para editar um pedido existente
+ */
+function editarPedido() {
+    const pedidoId = document.getElementById('pedidoIdEditar').value.trim();
+    const nomeCliente = document.getElementById('nomeClienteEditar').value.trim();
+    const telefoneCliente = document.getElementById('telefoneClienteEditar').value.trim();
+    const enderecoCliente = document.getElementById('enderecoClienteEditar').value.trim();
+    const entrega = document.getElementById('entregaEditar').checked;
+    const observacoes = document.getElementById('observacoesEditar').value.trim();
+    const preco = parseFloat(document.getElementById('precoEditar').value);
+
+    if (!pedidoId || !nomeCliente || !telefoneCliente || isNaN(preco)) {
+        alert('Por favor, preencha os campos obrigatórios!');
+        return;
+    }
+
+    const pedido = {
+        nomeCliente,
+        telefoneCliente,
+        enderecoCliente,
+        entrega,
+        observacoes,
+        preco
+    };
+
+    fetch(`/api/pedidos/editar/${pedidoId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pedido)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao editar pedido.');
+        return response.json();
+    })
+    .then(() => {
+        alert('Pedido editado com sucesso!');
+        document.querySelector('form').reset();
+    })
+    .catch(error => {
+        alert('Erro ao editar pedido!');
+        console.error('Erro:', error);
+    });
+}
+
+/**
+ * Função para gerar gráficos de pedidos
+ * @param {Array} dados - Array de objetos de pedidos
+ */
+function gerarGraficos(dados) {
+    const ctx = document.getElementById('graficoPedidos').getContext('2d');
+
+    const labels = dados.map(pedido => new Date(pedido.dataPedido).toLocaleDateString());
+    const valores = dados.map(pedido => pedido.preco);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Valor dos Pedidos',
+                data: valores,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Função para gerar gráficos de pedidos
+ * @param {Array} dados - Array de objetos de pedidos
+ */
+function gerarGraficos(dados) {
+    const ctx = document.getElementById('graficoPedidos').getContext('2d');
+
+    // Agrupar os valores dos pedidos por data
+    const agrupadoPorData = dados.reduce((acc, pedido) => {
+        const dataFormatada = new Date(pedido.dataPedido).toLocaleDateString('pt-BR');
+        if (!acc[dataFormatada]) {
+            acc[dataFormatada] = 0;
+        }
+        acc[dataFormatada] += pedido.preco;
+        return acc;
+    }, {});
+
+    const labels = Object.keys(agrupadoPorData);
+    const valores = Object.values(agrupadoPorData);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Valor total dos pedidos por dia',
+                data: valores,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Gráfico de Pedidos por Data'
+                },
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Valor em R$'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Data'
+                    }
+                }
+            }
+        }
+    });
+}

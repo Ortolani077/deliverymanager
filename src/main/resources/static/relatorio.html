@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Produtos Mais Vendidos</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 25px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .filters {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .success-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .success-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .danger-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .danger-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .status {
+            margin: 15px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading {
+            background-color: #e7f3fe;
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .error {
+            background-color: #ffdddd;
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .success {
+            background-color: #ddffdd;
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+
+        .material-icons {
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Animação de loading */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-actions">
+            <button class="primary-btn" onclick="window.location.href='http://localhost:8082/inicio.html'">
+                <span class="material-icons">arrow_back</span> Voltar
+            </button>
+            
+            <div class="action-buttons" id="exportButtons" style="display: none;">
+                <button class="success-btn" onclick="exportToPDF()">
+                    <span class="material-icons">picture_as_pdf</span> Exportar PDF
+                </button>
+                <button class="primary-btn" onclick="printReport()">
+                    <span class="material-icons">print</span> Imprimir
+                </button>
+            </div>
+        </div>
+        
+        <h1>Relatório de Produtos Mais Vendidos</h1>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="dataInicio"><span class="material-icons">date_range</span> Data Início:</label>
+                <input type="date" id="dataInicio">
+            </div>
+            <div class="filter-group">
+                <label for="dataFim"><span class="material-icons">date_range</span> Data Fim:</label>
+                <input type="date" id="dataFim">
+            </div>
+            <button class="success-btn" onclick="carregarRelatorio()">
+                <span class="material-icons">search</span> Filtrar
+            </button>
+        </div>
+
+        <div id="status" class="status loading">
+            <span class="material-icons">info</span> Selecione as datas e clique em Filtrar
+        </div>
+
+        <div id="reportContent">
+            <table id="relatorioTabela">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th class="text-right">Quantidade</th>
+                        <th class="text-right">Preço Unitário</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dados serão carregados aqui -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Função para validar e retornar data no formato YYYY-MM-DD
+        function formatarDataParaEnvio(data) {
+            const regex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!regex.test(data)) {
+                console.log("Formato de data inválido:", data);
+                return null;
+            }
+            return data;
+        }
+
+        function carregarRelatorio() {
+            const dataInicio = $('#dataInicio').val();
+            const dataFim = $('#dataFim').val();
+
+            if (!dataInicio || !dataFim) {
+                $('#status').removeClass().addClass('status error')
+                    .html('<span class="material-icons">error</span> Por favor, preencha ambas as datas!');
+                return;
+            }
+
+            const dataFormatadaInicio = formatarDataParaEnvio(dataInicio);
+            const dataFormatadaFim = formatarDataParaEnvio(dataFim);
+
+            if (!dataFormatadaInicio || !dataFormatadaFim) {
+                $('#status').removeClass().addClass('status error')
+                    .html('<span class="material-icons">error</span> Datas inválidas. Use o formato YYYY-MM-DD.');
+                return;
+            }
+
+            $('#status').removeClass().addClass('status loading')
+                .html('<span class="material-icons spinner">autorenew</span> Carregando dados...');
+            $('#relatorioTabela tbody').empty();
+            $('#exportButtons').hide();
+
+            $.ajax({
+                url: 'http://localhost:8082/relatorios/produtos-mais-vendidos-periodo',
+                method: 'GET',
+                data: {
+                    inicio: dataFormatadaInicio,
+                    fim: dataFormatadaFim
+                },
+                success: function(response) {
+                    console.log("Resposta recebida:", response);
+
+                    const tabela = $('#relatorioTabela tbody');
+                    tabela.empty();
+
+                    if (Array.isArray(response) && response.length > 0) {
+                        let totalGeral = 0;
+                        
+                        response.forEach(item => {
+                            const nomeProduto = item.nome || 'Produto Desconhecido';
+                            const quantidade = item.totalVendido || 0;
+                            const valorTotal = item.valorTotal || 0;
+                            const precoUnitario = quantidade > 0 ? valorTotal / quantidade : 0;
+                            totalGeral += valorTotal;
+
+                            tabela.append(`
+                                <tr>
+                                    <td>${nomeProduto}</td>
+                                    <td class="text-right">${quantidade}</td>
+                                    <td class="text-right">${formatarMoeda(precoUnitario)}</td>
+                                    <td class="text-right">${formatarMoeda(valorTotal)}</td>
+                                </tr>
+                            `);
+                        });
+
+                        // Adiciona linha de total geral
+                        tabela.append(`
+                            <tr style="background-color: #f8f9fa; font-weight: bold;">
+                                <td colspan="3">Total Geral</td>
+                                <td class="text-right">${formatarMoeda(totalGeral)}</td>
+                            </tr>
+                        `);
+
+                        $('#status').removeClass().addClass('status success')
+                            .html(`<span class="material-icons">check_circle</span> Dados carregados com sucesso - ${response.length} itens encontrados`);
+                        
+                        // Mostra botões de exportação
+                        $('#exportButtons').show();
+                    } else {
+                        $('#status').removeClass().addClass('status')
+                            .html('<span class="material-icons">info</span> Nenhum dado encontrado para o período selecionado');
+                        tabela.append('<tr><td colspan="4" class="text-center">Nenhum resultado encontrado</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro na requisição:', error);
+                    $('#status').removeClass().addClass('status error')
+                        .html('<span class="material-icons">error</span> Erro ao carregar dados. Verifique o console.');
+                }
+            });
+        }
+
+        // Função para formatar valores em moeda (R$)
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Função para exportar para PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título do relatório
+            const title = "Relatório de Produtos Mais Vendidos";
+            const dateRange = `Período: ${$('#dataInicio').val()} a ${$('#dataFim').val()}`;
+            
+            // Adiciona título e período
+            doc.setFontSize(18);
+            doc.text(title, 105, 20, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(dateRange, 105, 30, { align: 'center' });
+            
+            // Converte a tabela para imagem usando html2canvas
+            html2canvas(document.querySelector("#reportContent")).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = doc.internal.pageSize.getWidth() - 20;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                doc.addImage(imgData, 'PNG', 10, 40, imgWidth, imgHeight);
+                doc.save(`Relatorio_Produtos_${new Date().toISOString().slice(0,10)}.pdf`);
+            });
+        }
+
+        // Função para imprimir o relatório
+        function printReport() {
+            const printWindow = window.open('', '_blank');
+            const title = "Relatório de Produtos Mais Vendidos";
+            const dateRange = `Período: ${$('#dataInicio').val()} a ${$('#dataFim').val()}`;
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${title}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { text-align: center; }
+                        .report-date { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .text-right { text-align: right; }
+                        .footer { margin-top: 30px; text-align: right; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${title}</h1>
+                    <div class="report-date">${dateRange}</div>
+                    ${document.getElementById('reportContent').innerHTML}
+                    <div class="footer">Gerado em ${new Date().toLocaleString()}</div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        // Configura datas padrão (últimos 30 dias)
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+            
+            $('#dataFim').val(today.toISOString().split('T')[0]);
+            $('#dataInicio').val(oneMonthAgo.toISOString().split('T')[0]);
+        });
+    </script>
+</body>
+</html>

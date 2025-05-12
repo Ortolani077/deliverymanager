@@ -1,0 +1,409 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background: #212529;
+    color: #ffffff;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+/* Navigation */
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 1rem 0;
+    background: #343a40;
+}
+
+.itens-pedido-container {
+    max-height: 150px; /* Altura máxima para pedidos longos */
+    overflow-y: auto; /* Adiciona rolagem vertical */
+    padding: 0; /* Remove espaçamento interno */
+    margin: 5px 0; /* Espaço entre a área de itens e os outros elementos */
+}
+
+.lista-itens {
+    list-style-type: none; /* Remove os marcadores de lista padrão */
+    padding-left: 0;
+    margin: 0;
+}
+
+.item-detalhe {
+    padding: 3px 0; /* Espaçamento vertical reduzido entre os itens */
+    border-bottom: 1px solid #ddd; /* Linha divisória fina */
+}
+
+.item-detalhe:last-child {
+    border-bottom: none; /* Remove a linha da última entrada */
+}
+
+.btn-excluir {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-excluir:hover {
+    background-color: darkred;
+}
+
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li a:hover {
+    color: #f8d210;
+    text-decoration: underline;
+}
+
+/* Main Content */
+main {
+    padding: 3rem 5%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.hidden-section {
+    display: none;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn:hover {
+    background: #0056b3;
+}
+
+.close-btn {
+    float: right;
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.close-btn:hover {
+    background: #a71d2a;
+}
+
+/* Forms */
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border 0.3s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Table */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+/* Reset geral */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Corpo da página */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Cabeçalho */
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+nav ul li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+/* Área principal */
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Reset geral */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Corpo da página */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Cabeçalho */
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+nav ul li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+/* Área principal */
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilizando a tabela */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 15px;
+}
+
+thead {
+    background-color: #007bff;
+    color: white;
+}
+
+thead th {
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    vertical-align: top;
+}
+
+/* Ajustando largura das colunas para caber melhor as informações */
+th:nth-child(1), td:nth-child(1) { width: 5%; min-width: 50px; } /* ID */
+th:nth-child(2), td:nth-child(2) { width: 15%; min-width: 120px; } /* Data do Pedido */
+th:nth-child(3), td:nth-child(3) { width: 15%; min-width: 120px; } /* Nome do Cliente */
+th:nth-child(4), td:nth-child(4) { width: 20%; min-width: 180px; } /* Endereço */
+th:nth-child(5), td:nth-child(5) { width: 10%; min-width: 100px; } /* Tipo de Entrega */
+th:nth-child(6), td:nth-child(6) { width: 25%; min-width: 200px; } /* Itens do Pedido */
+th:nth-child(7), td:nth-child(7) { width: 10%; min-width: 100px; text-align: center; } /* Preço */
+th:nth-child(8), td:nth-child(8) { width: 15%; min-width: 150px; } /* Observações */
+th:nth-child(9), td:nth-child(9) { width: 10%; min-width: 120px; text-align: center; } /* Ações */
+
+/* Melhorando exibição dos itens do pedido */
+td:nth-child(6) {
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+/* Botões */
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Estilizando botões de ação */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons button {
+    padding: 8px;
+    font-size: 13px;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    table {
+        font-size: 13px;
+    }
+
+    nav ul li {
+        display: block;
+        margin: 10px 0;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    table {
+        font-size: 12px;
+    }
+
+    thead th {
+        padding: 8px;
+    }
+
+    tbody td {
+        padding: 8px;
+    }
+
+    /* Torna a tabela rolável horizontalmente */
+    .table-responsive {
+        overflow-x: auto;
+    }
+}

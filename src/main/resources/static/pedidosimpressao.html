@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Pedidos | Sistema de Impressão</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --accent-color: #3498db;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --light-gray: #ecf0f1;
+      --dark-gray: #7f8c8d;
+      --white: #ffffff;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --border-radius: 6px;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: var(--white);
+      padding: 20px 0;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    h1 {
+      font-weight: 500;
+      font-size: 24px;
+    }
+    
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    
+    button {
+      background-color: var(--accent-color);
+      color: var(--white);
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+    }
+    
+    button.secondary {
+      background-color: var(--secondary-color);
+    }
+    
+    button.secondary:hover {
+      background-color: #2c3e50;
+    }
+    
+    button.success {
+      background-color: var(--success-color);
+    }
+    
+    button.success:hover {
+      background-color: #219653;
+    }
+    
+    .material-icons {
+      font-size: 18px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    th {
+      background-color: var(--primary-color);
+      color: var(--white);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+    }
+    
+    tr:hover {
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+    
+    .impresso {
+      background-color: rgba(39, 174, 96, 0.1) !important;
+    }
+    
+    .nao-impresso {
+      background-color: rgba(243, 156, 18, 0.1) !important;
+    }
+    
+    .oculto {
+      display: none;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    
+    .status-impresso {
+      background-color: rgba(39, 174, 96, 0.1);
+      color: var(--success-color);
+    }
+    
+    .status-pendente {
+      background-color: rgba(243, 156, 18, 0.1);
+      color: var(--warning-color);
+    }
+    
+    #modal {
+      display: none;
+      position: fixed;
+      width: 400px;
+      background-color: var(--white);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+    
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+    
+    .modal-content {
+      text-align: center;
+    }
+    
+    .modal-title {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+    
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    #mensagem {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: 500;
+      padding: 12px;
+      border-radius: var(--border-radius);
+    }
+    
+    .success-message {
+      background-color: rgba(39, 174, 96, 0.1);
+      color: var(--success-color);
+    }
+    
+    .error-message {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--danger-color);
+    }
+    
+    #notificacao {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: var(--success-color);
+      color: var(--white);
+      padding: 15px 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: none;
+      z-index: 1001;
+      animation: fadeIn 0.3s, fadeOut 0.3s 4.5s;
+      max-width: 350px;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--dark-gray);
+    }
+    
+    .empty-state .material-icons {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: var(--light-gray);
+    }
+    
+    @media (max-width: 768px) {
+      .actions-bar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      
+      th, td {
+        padding: 10px;
+        font-size: 14px;
+      }
+      
+      #modal {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <h1>Gestão de Pedidos</h1>
+      <button class="secondary" onclick="window.location.href='http://localhost:8082/inicio.html'">
+        <span class="material-icons">arrow_back</span> Voltar
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="actions-bar">
+      <button id="toggleImpressosBtn" onclick="toggleImpressos()">
+        <span class="material-icons">visibility_off</span> Ocultar Impressos
+      </button>
+      <div id="mensagem"></div>
+    </div>
+
+    <table id="tabelaPedidos">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Telefone</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th>Itens</th>
+          <th>Total</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="notificacao"></div>
+
+    <div id="modalOverlay"></div>
+    <div id="modal">
+      <div class="modal-content">
+        <h3 class="modal-title">Confirmar Impressão</h3>
+        <p>Tem certeza que deseja imprimir este pedido?</p>
+        <div class="modal-buttons">
+          <button class="success" onclick="confirmarImpressao()">
+            <span class="material-icons">check</span> Confirmar
+          </button>
+          <button class="secondary" onclick="fecharModal()">
+            <span class="material-icons">close</span> Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let idParaImprimir = null;
+    let botaoAtual = null;
+    let todosOsPedidos = [];
+    let mostrarImpressos = true;
+    let idsConhecidos = new Set();
+
+    async function carregarPedidos() {
+      try {
+        const response = await fetch('http://localhost:8082/api/pedidos/listar');
+        if (!response.ok) throw new Error('Erro ao carregar pedidos');
+
+        const pedidosNovos = await response.json();
+        
+        const novosPedidos = pedidosNovos.filter(pedido => !idsConhecidos.has(pedido.id));
+        
+        if (novosPedidos.length > 0) {
+          novosPedidos.forEach(pedido => idsConhecidos.add(pedido.id));
+          
+          if (todosOsPedidos.length > 0) {
+            mostrarNotificacao(`${novosPedidos.length} novo(s) pedido(s) recebido(s)!`);
+          }
+        }
+
+        todosOsPedidos = pedidosNovos;
+        atualizarTabela();
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+        mostrarMensagem('Erro ao carregar pedidos.', 'error');
+      }
+    }
+
+    function atualizarTabela() {
+      const tbody = document.querySelector('#tabelaPedidos tbody');
+      tbody.innerHTML = '';
+
+      if (todosOsPedidos.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <span class="material-icons">assignment</span>
+                <p>Nenhum pedido encontrado</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      todosOsPedidos.sort((a, b) => new Date(b.dataPedido) - new Date(a.dataPedido));
+
+      todosOsPedidos.forEach(pedido => {
+        const tr = document.createElement('tr');
+
+        if (pedido.impresso) {
+          tr.classList.add('impresso');
+          if (!mostrarImpressos) {
+            tr.classList.add('oculto');
+          }
+        } else {
+          tr.classList.add('nao-impresso');
+        }
+
+        const itensHTML = (pedido.itens || []).map(item =>
+          `${item.produto?.nome || 'Produto'} (${item.quantidade}x)`
+        ).join('<br>');
+
+        tr.innerHTML = `
+          <td>#${pedido.id}</td>
+          <td>${pedido.cliente?.nome || '---'}</td>
+          <td>${formatarTelefone(pedido.cliente?.telefone) || '---'}</td>
+          <td>${formatarData(pedido.dataPedido)}</td>
+          <td><span class="status-badge ${pedido.impresso ? 'status-impresso' : 'status-pendente'}">${
+            pedido.impresso ? 'Impresso' : 'Pendente'
+          }</span></td>
+          <td>${itensHTML}</td>
+          <td>R$ ${(pedido.preco || 0).toFixed(2).replace('.', ',')}</td>
+          <td>
+            <button onclick="abrirModal(${pedido.id}, this)" class="${pedido.impresso ? 'secondary' : 'success'}">
+              <span class="material-icons">print</span> ${pedido.impresso ? 'Reimprimir' : 'Imprimir'}
+            </button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function formatarData(dataString) {
+      if (!dataString) return '---';
+      const data = new Date(dataString);
+      return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR').substring(0, 5);
+    }
+
+    function formatarTelefone(telefone) {
+      if (!telefone) return '---';
+      // Remove tudo que não for dígito
+      const nums = telefone.replace(/\D/g, '');
+      // Formata (XX) XXXX-XXXX ou (XX) XXXXX-XXXX
+      if (nums.length === 10) {
+        return nums.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+      } else if (nums.length === 11) {
+        return nums.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      }
+      return telefone;
+    }
+
+    function toggleImpressos() {
+      mostrarImpressos = !mostrarImpressos;
+      const btnToggle = document.getElementById('toggleImpressosBtn');
+      btnToggle.innerHTML = mostrarImpressos 
+        ? '<span class="material-icons">visibility_off</span> Ocultar Impressos' 
+        : '<span class="material-icons">visibility</span> Mostrar Impressos';
+      
+      document.querySelectorAll('tr.impresso').forEach(tr => {
+        if (mostrarImpressos) {
+          tr.classList.remove('oculto');
+        } else {
+          tr.classList.add('oculto');
+        }
+      });
+    }
+
+    function abrirModal(id, botao) {
+      document.getElementById('modalOverlay').style.display = 'block';
+      document.getElementById('modal').style.display = 'block';
+      idParaImprimir = id;
+      botaoAtual = botao;
+    }
+
+    function fecharModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+      document.getElementById('modal').style.display = 'none';
+      idParaImprimir = null;
+      botaoAtual = null;
+    }
+
+    async function confirmarImpressao() {
+      if (!idParaImprimir || !botaoAtual) return;
+
+      botaoAtual.disabled = true;
+      botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
+
+      try {
+        const response = await fetch(`http://localhost:8082/api/pedidos/${idParaImprimir}/imprimir`, {
+          method: 'PUT'
+        });
+
+        if (response.ok) {
+          mostrarMensagem('Pedido impresso com sucesso!', 'success');
+          await carregarPedidos();
+        } else {
+          throw new Error('Erro na resposta do servidor');
+        }
+      } catch (error) {
+        console.error('Erro ao imprimir pedido:', error);
+        mostrarMensagem('Erro ao imprimir o pedido.', 'error');
+        botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
+      } finally {
+        botaoAtual.disabled = false;
+        fecharModal();
+      }
+    }
+
+    function mostrarMensagem(texto, tipo) {
+      const msg = document.getElementById('mensagem');
+      msg.textContent = texto;
+      msg.className = tipo === 'success' ? 'success-message' : 'error-message';
+      setTimeout(() => msg.textContent = '', 4000);
+    }
+
+    function mostrarNotificacao(texto) {
+      const notificacao = document.getElementById('notificacao');
+      notificacao.textContent = texto;
+      notificacao.style.display = 'block';
+      
+      notificacao.style.animation = 'none';
+      void notificacao.offsetWidth;
+      notificacao.style.animation = 'fadeIn 0.3s, fadeOut 0.3s 4.5s';
+      
+      setTimeout(() => {
+        notificacao.style.display = 'none';
+      }, 5000);
+    }
+
+    window.onload = carregarPedidos;
+    setInterval(carregarPedidos, 30000);
+  </script>
+
+</body>
+</html>

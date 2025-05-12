@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Pedidos</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="scripts.js" defer></script>
+    <style>
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 48%;
+            min-width: 300px;
+        }
+        .chart-title {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gerenciamento de Pedidos</h1>
+        <nav>
+            <ul>
+                <li><a href="javascript:void(0);" onclick="toggleSection('listar-view')">Pesquisar pedidos</a></li>
+                <li><a href="http://localhost:8082/relatorio.html">Relatórios</a></li>
+                <li><a href="http://localhost:8082/pedidosimpressao.html">Novos Pedidos</a></li>
+                <li><a href="javascript:void(0);" onclick="logout();">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Dashboard com gráficos -->
+        <section class="dashboard">
+            <div class="chart-container">
+                <h3 class="chart-title">Pedidos por Dia (Últimos 7 dias)</h3>
+                <canvas id="pedidosPorDiaChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Distribuição de Valores</h3>
+                <canvas id="valorPedidosChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Seção Criar Pedido -->
+        <section id="criar-pedido" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('criar-pedido')">X</button>
+            <h3>Criar Pedido</h3>
+            <form onsubmit="event.preventDefault(); criarPedido();">
+                <label for="nomeCliente">Nome do Cliente:</label>
+                <input type="text" id="nomeCliente" required><br>
+                
+                <label for="telefoneCliente">Telefone do Cliente:</label>
+                <input type="text" id="telefoneCliente" required><br>
+                
+                <label for="enderecoCliente">Endereço do Cliente:</label>
+                <input type="text" id="enderecoCliente" required><br>
+                
+                <label for="entrega">Entrega:</label>
+                <input type="checkbox" id="entrega"><br>
+                
+                <label for="observacoes">Observações:</label>
+                <input type="text" id="observacoes"><br>
+                
+                <label for="preco">Preço:</label>
+                <input type="number" id="preco" step="0.01" required><br>
+                
+                <button type="submit">Criar Pedido</button>
+            </form>
+        </section>
+        
+        <!-- Seção Listar Pedidos -->
+        <section id="listar-pedidos" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('listar-pedidos')">X</button>
+            <h3>Listar Todos os Pedidos</h3>
+            <button onclick="listarPedidos()">Listar Pedidos</button>
+            <input type="text" id="filtro" placeholder="Filtrar pedidos">
+            <table id="pedidosList">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do Cliente</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th>Preço</th>
+                        <th>Data do Pedido</th>
+                        <th>Quantidade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aqui serão listados os pedidos em formato de tabela -->
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- Seção Listar Pedidos da View -->
+        <section id="listar-view" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('listar-view')">X</button>
+            <h3>Pesquisar pedidos por data</h3>
+            <div>
+                <label for="dataInicio">Data de Início:</label>
+                <input type="date" id="dataInicio" name="dataInicio">
+                <label for="dataFim">Data de Fim:</label>
+                <input type="date" id="dataFim" name="dataFim">
+                <button onclick="listarPedidosDaView()">Filtrar</button>
+            </div>
+            <table id="pedidosViewList">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data do Pedido</th>
+                        <th>Nome do Cliente</th>
+                        <th>Endereço</th>
+                        <th>Tipo de Entrega</th>
+                        <th>Itens do Pedido</th>
+                        <th>Preço</th>
+                        <th>Observações</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Pedidos da view serão listados aqui -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Seção Editar Pedido -->
+        <section id="editar-pedido" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('editar-pedido')">X</button>
+            <h3>Editar Pedido</h3>
+            <input type="number" id="pedidoIdEditar" placeholder="ID do Pedido"><br>
+            <label for="nomeClienteEditar">Nome do Cliente:</label>
+            <input type="text" id="nomeClienteEditar" required><br>
+            <label for="telefoneClienteEditar">Telefone do Cliente:</label>
+            <input type="text" id="telefoneClienteEditar" required><br>
+            <label for="enderecoClienteEditar">Endereço do Cliente:</label>
+            <input type="text" id="enderecoClienteEditar" required><br>
+            <label for="entregaEditar">Entrega:</label>
+            <input type="checkbox" id="entregaEditar"><br>
+            <label for="observacoesEditar">Observações:</label>
+            <input type="text" id="observacoesEditar"><br>
+            <label for="precoEditar">Preço:</label>
+            <input type="number" id="precoEditar" step="0.01" required><br>
+            <button onclick="editarPedido()">Editar Pedido</button>
+        </section>
+        
+        <!-- Seção Excluir Pedido -->
+        <section id="excluir-pedido" class="hidden-section">
+            <button class="close-btn" onclick="toggleSection('excluir-pedido')">X</button>
+            <h3>Excluir Pedido</h3>
+            <input type="number" id="pedidoIdExcluir" placeholder="ID do Pedido">
+            <button onclick="excluirPedido()">Excluir Pedido</button>
+        </section>
+    </main>
+
+	<script>
+	    document.addEventListener('DOMContentLoaded', function () {
+	        buscarDadosParaGraficos();
+	    });
+
+	    async function buscarDadosParaGraficos() {
+	        try {
+	            const response = await fetch('http://localhost:8082/api/pedidos/listar');
+	            const pedidos = await response.json();
+
+	            // Processar dados para gráfico de pedidos por dia (últimos 7 dias)
+	            const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+	            const hoje = new Date();
+	            const pedidosPorDia = Array(7).fill(0);
+
+	            pedidos.forEach(pedido => {
+	                const data = new Date(pedido.dataPedido); // Ajuste conforme o nome do campo de data
+	                const diffDias = Math.floor((hoje - data) / (1000 * 60 * 60 * 24));
+	                if (diffDias < 7) {
+	                    const diaSemana = data.getDay();
+	                    pedidosPorDia[diaSemana]++;
+	                }
+	            });
+
+	            const dadosPedidosPorDia = {
+	                labels: dias,
+	                datasets: [{
+	                    label: 'Número de Pedidos',
+	                    data: pedidosPorDia,
+	                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+	                    borderColor: 'rgba(54, 162, 235, 1)',
+	                    borderWidth: 1
+	                }]
+	            };
+
+	            const ctx1 = document.getElementById('pedidosPorDiaChart').getContext('2d');
+	            new Chart(ctx1, {
+	                type: 'bar',
+	                data: dadosPedidosPorDia,
+	                options: {
+	                    responsive: true,
+	                    scales: {
+	                        y: {
+	                            beginAtZero: true
+	                        }
+	                    }
+	                }
+	            });
+
+	            // Processar dados para gráfico de distribuição de valores
+	            let valorFaixas = {
+	                '< R$50': 0,
+	                'R$50-R$100': 0,
+	                'R$100-R$150': 0,
+	                '> R$150': 0
+	            };
+
+	            pedidos.forEach(p => {
+	                const preco = parseFloat(p.preco); // Ajuste conforme o nome do campo de preço
+	                if (preco < 50) valorFaixas['< R$50']++;
+	                else if (preco < 100) valorFaixas['R$50-R$100']++;
+	                else if (preco < 150) valorFaixas['R$100-R$150']++;
+	                else valorFaixas['> R$150']++;
+	            });
+
+	            const dadosValorPedidos = {
+	                labels: Object.keys(valorFaixas),
+	                datasets: [{
+	                    label: 'Distribuição de Valores',
+	                    data: Object.values(valorFaixas),
+	                    backgroundColor: [
+	                        'rgba(255, 99, 132, 0.5)',
+	                        'rgba(54, 162, 235, 0.5)',
+	                        'rgba(255, 206, 86, 0.5)',
+	                        'rgba(75, 192, 192, 0.5)'
+	                    ],
+	                    borderColor: [
+	                        'rgba(255, 99, 132, 1)',
+	                        'rgba(54, 162, 235, 1)',
+	                        'rgba(255, 206, 86, 1)',
+	                        'rgba(75, 192, 192, 1)'
+	                    ],
+	                    borderWidth: 1
+	                }]
+	            };
+
+	            const ctx2 = document.getElementById('valorPedidosChart').getContext('2d');
+	            new Chart(ctx2, {
+	                type: 'pie',
+	                data: dadosValorPedidos,
+	                options: {
+	                    responsive: true
+	                }
+	            });
+
+	        } catch (error) {
+	            console.error('Erro ao buscar os dados de pedidos:', error);
+	        }
+	    }
+	</script>
+
+
+</body>
+</html>
