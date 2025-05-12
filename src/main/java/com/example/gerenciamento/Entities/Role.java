@@ -34,4 +34,10 @@ public class Role {
     public void setName(String name) {
         this.name = name;
     }
+
+    // Sobrescrevendo o método toString para facilitar a visualização
+    @Override
+    public String toString() {
+        return "Role{id=" + id + ", name='" + name + "'}";
+    }
 }

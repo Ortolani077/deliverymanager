@@ -1,8 +1,10 @@
 package com.example.gerenciamento.Security;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.gerenciamento.Entities.User;
@@ -15,10 +17,14 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getAuthorities();
+        System.out.println("Roles: " + user.getRoles());  // Adicione isso para depuração
+        return user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toList());
     }
+
+
 
     @Override
     public String getPassword() {
@@ -27,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getEmail(); // Ou username, dependendo do que você usa como login
     }
 
     @Override
@@ -47,7 +53,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isEnabled(); // Verifica se o usuário está habilitado
     }
 
     public User getUser() {

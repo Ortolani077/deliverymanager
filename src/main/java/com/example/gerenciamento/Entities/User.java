@@ -110,9 +110,8 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Mapeia as roles do usuário para autoridades do Spring Security
         return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getName()))  // Transforma a role em uma autoridade
-                    .collect(Collectors.toList());
+                .map(role -> new SimpleGrantedAuthority(role.getName())) // Ex: "ROLE_ADMIN"
+                .collect(Collectors.toList());
     }
 }
