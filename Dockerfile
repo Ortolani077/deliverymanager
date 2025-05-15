@@ -1,23 +1,23 @@
-# Etapa 1: Usar uma imagem base com o JDK
-FROM openjdk:21-jdk-slim as builder
+# Etapa 1: Build da aplicação usando Maven
+FROM maven:3.9.3-eclipse-temurin-21 AS builder
 
-# Definir o diretório de trabalho no container
 WORKDIR /app
 
-# Copiar o arquivo .jar para o diretório de trabalho
-COPY target/GerenciamentoDelivery-0.0.1-SNAPSHOT.jar app.jar
+# Copia o pom.xml e o código fonte
+COPY pom.xml .
+COPY src ./src
 
-# Etapa 2: Usar uma imagem base do JDK para rodar a aplicação
-FROM openjdk:21-jdk-slim
+# Build da aplicação (sem rodar testes para agilizar)
+RUN mvn clean package -DskipTests
 
-# Definir o diretório de trabalho no container
+# Etapa 2: Imagem final para rodar a aplicação
+FROM eclipse-temurin:21-jdk-alpine
+
 WORKDIR /app
 
-# Copiar o arquivo .jar do build para a imagem final
-COPY --from=builder /app/app.jar /app/app.jar
+# Copia o jar gerado da etapa builder
+COPY --from=builder /app/target/*.jar app.jar
 
-# Expor a porta 8082
-EXPOSE 8082
+EXPOSE 8080
 
-# Comando para executar o arquivo .jar
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
