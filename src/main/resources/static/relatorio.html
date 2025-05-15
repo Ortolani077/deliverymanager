@@ -327,7 +327,9 @@
             $('#exportButtons').hide();
 
             $.ajax({
-                url: 'http://localhost:8082/relatorios/produtos-mais-vendidos-periodo',
+                url: 'https://deliverymanager.onrender.com/relatorios/produtos-mais-vendidos-periodo' ,
+				
+			//Localhost	//'http://localhost:8082/relatorios/produtos-mais-vendidos-periodo',
                 method: 'GET',
                 data: {
                     inicio: dataFormatadaInicio,
