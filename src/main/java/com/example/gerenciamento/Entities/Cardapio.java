@@ -30,6 +30,16 @@ public class Cardapio {
 
     @OneToMany(mappedBy = "cardapio")
     private List<Categoria> categorias;
+    
+    
+    
+    
+    // Construtor usado nos testes
+    public Cardapio(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+    
 
 	public Long getId() {
 		return id;
