@@ -36,9 +36,16 @@
         <nav>
             <ul>
                 <li><a href="javascript:void(0);" onclick="toggleSection('listar-view')">Pesquisar pedidos</a></li>
-                <li><a href="http://localhost:8082/relatorio.html">Relatórios</a></li>
-                <li><a href="http://localhost:8082/pedidosimpressao.html">Novos Pedidos</a></li>
-                <li><a href="javascript:void(0);" onclick="logout();">Logout</a></li>
+                
+				<!--URLS PARA LOCALHOST-->
+				<!-- <li><a href="http://localhost:8082/relatorio.html">Relatórios</a></li> -->
+               <!-- <li><a href="http://localhost:8082/pedidosimpressao.html">Novos Pedidos</a></li> -->
+                
+				
+				<li><a href="https://deliverymanager.onrender.com/relatorio.html">Relatórios</a></li>
+				<li><a href="https://deliverymanager.onrender.com/pedidosimpressao.html">Novos Pedidos</a></li>
+
+				<li><a href="javascript:void(0);" onclick="logout();">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -174,7 +181,8 @@
 
 	    async function buscarDadosParaGraficos() {
 	        try {
-	            const response = await fetch('http://localhost:8082/api/pedidos/listar');
+				// const response = await fetch('http://localhost:8082/api/pedidos/listar');
+				const response = await fetch('https://deliverymanager.onrender.com/api/pedidos/listar');
 	            const pedidos = await response.json();
 
 	            // Processar dados para gráfico de pedidos por dia (últimos 7 dias)
