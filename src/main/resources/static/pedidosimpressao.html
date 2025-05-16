@@ -478,34 +478,35 @@
         botaoAtual = null;
       }
 
-      async function confirmarImpressao() {
-        if (!idParaImprimir || !botaoAtual) return;
+	  async function confirmarImpressao() {
+	    if (!idParaImprimir || !botaoAtual) return;
 
-        botaoAtual.disabled = true;
-        botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
+	    botaoAtual.disabled = true;
+	    botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
 
-        try {
-          // URL local para debug
-          // const response = await fetch(`http://localhost:8082/api/pedidos/${idParaImprimir}/imprimir`, { method: 'PUT' });
+	    try {
+	      // URL local para debug
+	      // const response = await fetch(`http://localhost:8082/api/pedidos/${idParaImprimir}/imprimir`, { method: 'PUT' });
 
-          // URL no Render
-          const response = await fetch(`https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/imprimir`, { method: 'PUT' });
+	      // URL de produção no Render
+	      const response = await fetch(`https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/imprimir`, { method: 'PUT' });
 
-          if (response.ok) {
-            mostrarMensagem('Pedido impresso com sucesso!', 'success');
-            await carregarPedidos();
-          } else {
-            throw new Error('Erro na resposta do servidor');
-          }
-        } catch (error) {
-          console.error('Erro ao imprimir pedido:', error);
-          mostrarMensagem('Erro ao imprimir o pedido.', 'error');
-          botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
-        } finally {
-          botaoAtual.disabled = false;
-          fecharModal();
-        }
-      }
+	      if (response.ok) {
+	        mostrarMensagem('Pedido impresso com sucesso!', 'success');
+	        await carregarPedidos();
+	      } else {
+	        throw new Error('Erro na resposta do servidor');
+	      }
+	    } catch (error) {
+	      console.error('Erro ao imprimir pedido:', error);
+	      mostrarMensagem('Erro ao imprimir o pedido.', 'error');
+	      botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
+	    } finally {
+	      botaoAtual.disabled = false;
+	      fecharModal();
+	    }
+	  }
+
 
       function mostrarMensagem(texto, tipo) {
         const msg = document.getElementById('mensagem');

@@ -3,18 +3,14 @@
  * @param {string} sectionId - ID da seção a ser exibida
  */
 function toggleSection(sectionId) {
-    // Esconde todas as seções
     const sections = document.querySelectorAll('section');
     sections.forEach(section => {
         section.classList.add('hidden-section');
     });
 
-    // Exibe a seção selecionada
     const sectionToShow = document.getElementById(sectionId);
     if (sectionToShow) {
         sectionToShow.classList.remove('hidden-section');
-        
-        // Adiciona evento de clique no botão de fechar (se existir)
         const closeBtn = sectionToShow.querySelector('.close-section');
         if (closeBtn) {
             closeBtn.onclick = () => sectionToShow.classList.add('hidden-section');
@@ -29,7 +25,6 @@ function toggleSection(sectionId) {
  */
 function logout() {
     console.log('Iniciando processo de logout...');
-
     fetch('/api/auth/logout', {
         method: 'POST',
         headers: {
@@ -42,12 +37,8 @@ function logout() {
     })
     .then(() => {
         console.log('Logout bem-sucedido.');
-        
-        // Limpar tokens
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
         localStorage.removeItem('token');
-        
-        // Redirecionar após pequeno delay
         setTimeout(() => {
             window.location.replace('http://localhost:8082/index.html');
         }, 100);
@@ -62,7 +53,6 @@ function logout() {
  * Função para criar um novo pedido
  */
 function criarPedido() {
-    // Obter valores dos campos
     const nomeCliente = document.getElementById('nomeCliente').value.trim();
     const telefoneCliente = document.getElementById('telefoneCliente').value.trim();
     const enderecoCliente = document.getElementById('enderecoCliente').value.trim();
@@ -70,13 +60,11 @@ function criarPedido() {
     const observacoes = document.getElementById('observacoes').value.trim();
     const preco = parseFloat(document.getElementById('preco').value);
 
-    // Validação básica
     if (!nomeCliente || !telefoneCliente || !preco) {
         alert('Por favor, preencha os campos obrigatórios!');
         return;
     }
 
-    // Montar objeto do pedido
     const pedido = {
         nomeCliente,
         telefoneCliente,
@@ -86,7 +74,6 @@ function criarPedido() {
         preco
     };
 
-    // Enviar requisição
     fetch('/api/pedidos/criar', {
         method: 'POST',
         headers: {
@@ -177,7 +164,7 @@ function listarPedidosDaView() {
                     const descricaoProduto = produto.descricao || 'Sem descrição disponível';
                     const precoUnitario = produto.preco ? produto.preco.toFixed(2) : '0.00';
                     const quantidade = item.quantidade || 1;
-                    const precoTotalItem = (quantidade * produto.preco || 0).toFixed(2);
+                    const precoTotalItem = (quantidade * (produto.preco || 0)).toFixed(2);
 
                     return `
                         <li class="item-detalhe">
@@ -309,93 +296,44 @@ function editarPedido() {
  * @param {Array} dados - Array de objetos de pedidos
  */
 function gerarGraficos(dados) {
+    if (!dados || dados.length === 0) {
+        alert('Não há dados suficientes para gerar gráficos.');
+        return;
+    }
+
+    const dias = {};
+    dados.forEach(pedido => {
+        const data = new Date(pedido.dataPedido).toLocaleDateString('pt-BR');
+        dias[data] = (dias[data] || 0) + 1;
+    });
+
+    const labels = Object.keys(dias);
+    const values = Object.values(dias);
+
     const ctx = document.getElementById('graficoPedidos').getContext('2d');
-
-    const labels = dados.map(pedido => new Date(pedido.dataPedido).toLocaleDateString());
-    const valores = dados.map(pedido => pedido.preco);
-
     new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Valor dos Pedidos',
-                data: valores,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                label: 'Pedidos por Dia',
+                data: values,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-/**
- * Função para gerar gráficos de pedidos
- * @param {Array} dados - Array de objetos de pedidos
- */
-function gerarGraficos(dados) {
-    const ctx = document.getElementById('graficoPedidos').getContext('2d');
-
-    // Agrupar os valores dos pedidos por data
-    const agrupadoPorData = dados.reduce((acc, pedido) => {
-        const dataFormatada = new Date(pedido.dataPedido).toLocaleDateString('pt-BR');
-        if (!acc[dataFormatada]) {
-            acc[dataFormatada] = 0;
-        }
-        acc[dataFormatada] += pedido.preco;
-        return acc;
-    }, {});
-
-    const labels = Object.keys(agrupadoPorData);
-    const valores = Object.values(agrupadoPorData);
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Valor total dos pedidos por dia',
-                data: valores,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
             plugins: {
+                legend: { display: false },
                 title: {
                     display: true,
-                    text: 'Gráfico de Pedidos por Data'
-                },
-                legend: {
-                    display: true,
-                    position: 'bottom'
+                    text: 'Quantidade de Pedidos por Dia'
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Valor em R$'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Data'
-                    }
-                }
+                y: { beginAtZero: true }
             }
         }
     });
