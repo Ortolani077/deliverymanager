@@ -510,42 +510,7 @@
           iframe.style.border = 'none';
           iframe.style.visibility = 'hidden';
           
-          document.body.appendChild(iframe);
-          
-          // Escreve o conteúdo no iframe
-          iframe.contentDocument.open();
-          iframe.contentDocument.write(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>Impressão</title>
-                <style>
-                  pre { 
-                    font-family: monospace; 
-                    white-space: pre-wrap;
-                    margin: 20px;
-                  }
-                  @media print {
-                    body { margin: 0; padding: 0; }
-                  }
-                </style>
-              </head>
-              <body>
-                <pre>${texto}</pre>
-                <script>
-                  window.onload = function() {
-                    setTimeout(function() {
-                      window.print();
-                      setTimeout(function() {
-                        window.close();
-                      }, 100);
-                    }, 100);
-                  };
-                <\/script>
-              </body>
-            </html>
-          `);
-          iframe.contentDocument.close();
+         
 
           mostrarMensagem('Pedido impresso com sucesso!', 'success');
           await carregarPedidos();
