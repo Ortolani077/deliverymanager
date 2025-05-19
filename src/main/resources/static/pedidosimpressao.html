@@ -483,81 +483,45 @@
         botaoAtual = null;
       }
 
-      async function confirmarImpressao() {
-        if (!idParaImprimir || !botaoAtual) return;
+	  async function confirmarImpressao() {
+	      if (!idParaImprimir || !botaoAtual) return;
 
-        botaoAtual.disabled = true;
-        botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
+	      botaoAtual.disabled = true;
+	      botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
 
-        try {
-          const response = await fetch(
-            `https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/dados-para-impressao`
-          );
+	      try {
+	          const response = await fetch(
+	              `https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/dados-para-impressao`
+	          );
 
-          if (!response.ok) {
-            throw new Error("Erro ao buscar dados para impressão.");
-          }
+	          if (!response.ok) {
+	              throw new Error("Erro ao buscar dados para impressão.");
+	          }
 
-          const texto = await response.text();
+	          const texto = await response.text();
 
-          // Cria um iframe invisível para impressão
-          const iframe = document.createElement('iframe');
-          iframe.style.position = 'fixed';
-          iframe.style.right = '0';
-          iframe.style.bottom = '0';
-          iframe.style.width = '0';
-          iframe.style.height = '0';
-          iframe.style.border = 'none';
-          iframe.style.visibility = 'hidden';
-          
-          document.body.appendChild(iframe);
-          
-          // Escreve o conteúdo no iframe
-          iframe.contentDocument.open();
-          iframe.contentDocument.write(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>Impressão</title>
-                <style>
-                  pre { 
-                    font-family: monospace; 
-                    white-space: pre-wrap;
-                    margin: 20px;
-                  }
-                  @media print {
-                    body { margin: 0; padding: 0; }
-                  }
-                </style>
-              </head>
-              <body>
-                <pre>${texto}</pre>
-                <script>
-                  window.onload = function() {
-                    setTimeout(function() {
-                      window.print();
-                      setTimeout(function() {
-                        window.close();
-                      }, 100);
-                    }, 100);
-                  };
-                <\/script>
-              </body>
-            </html>
-          `);
-          iframe.contentDocument.close();
+	          // Envia o texto direto para a impressora térmica
+	          const printWindow = window.open('', '', 'width=300,height=400');
+	          printWindow.document.write(`<pre style="font-family: monospace; white-space: pre;">${texto}</pre>`);
+	          printWindow.document.close();
+	          printWindow.focus();
+	          printWindow.print();
+	          printWindow.close();
 
-          mostrarMensagem('Pedido impresso com sucesso!', 'success');
-          await carregarPedidos();
-        } catch (error) {
-          console.error('Erro ao imprimir pedido:', error);
-          mostrarMensagem(error.message, 'error');
-          botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
-        } finally {
-          botaoAtual.disabled = false;
-          fecharModal();
-        }
-      }
+	          mostrarMensagem('Pedido impresso com sucesso!', 'success');
+	          await carregarPedidos();
+	      } catch (error) {
+	          console.error('Erro ao imprimir pedido:', error);
+	          mostrarMensagem(error.message, 'error');
+	          botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
+	      } finally {
+	          botaoAtual.disabled = false;
+	          fecharModal();
+	      }
+	  }
+
+        
+      
 
       function mostrarMensagem(texto, tipo) {
         const msg = document.getElementById('mensagem');
