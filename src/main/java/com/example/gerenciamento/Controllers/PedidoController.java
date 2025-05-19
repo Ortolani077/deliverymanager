@@ -1,11 +1,7 @@
 package com.example.gerenciamento.Controllers;
 
-import java.awt.PageAttributes.MediaType;
-import java.net.http.HttpHeaders;
-import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -148,49 +144,38 @@ public class PedidoController {
     
     
     
-    public String formatarParaImpressora(Pedido pedido) {
-        StringBuilder sb = new StringBuilder();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    public String gerarTextoParaImpressao(Pedido pedido) {
+        StringBuilder texto = new StringBuilder();
 
-        sb.append("=========== PEDIDO Nº ")
-          .append(pedido.getId())
-          .append(" ===========\n");
+        texto.append("==================== PEDIDO Nº ").append(pedido.getId()).append("\n");
+        texto.append("====================\n\n");
+        
+        texto.append("Cliente : ").append(pedido.getCliente().getNome()).append("\n");
+        texto.append("Telefone: ").append(pedido.getCliente().getTelefone()).append("\n");
+        texto.append("Data    : ").append(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(pedido.getDataPedido())).append("\n");
+        texto.append("Entrega : ").append(pedido.isEntrega() ? "SIM" : "NÃO").append("\n");
 
-        sb.append("Cliente : ").append(pedido.getCliente().getNome()).append("\n");
-        sb.append("Telefone: ").append(pedido.getCliente().getTelefone()).append("\n");
-
-        LocalDateTime dataHora = pedido.getDataPedido()
-            .toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime();
-        sb.append("Data    : ").append(dataHora.format(formatter)).append("\n");
-
-        sb.append("Entrega : ").append(pedido.isEntrega() ? "SIM" : "NÃO").append("\n");
-        sb.append("Endereço: ").append(
-            pedido.getEnderecoCliente() != null ? pedido.getEnderecoCliente() : "N/A"
-        ).append("\n");
-
-        sb.append("\nItens:\n");
-
-        for (ItemPedido item : pedido.getItens()) {
-            String nome = item.getProduto().getNome();
-            int qtd = item.getQuantidade();
-            double preco = item.getPreco();
-
-            sb.append(String.format(" - %-20s x%-2d R$ %6.2f\n", nome, qtd, preco));
+        if (pedido.isEntrega()) {
+            texto.append("Endereço: ").append(pedido.getEnderecoCliente()).append("\n");
         }
 
-        sb.append("\nTOTAL   : R$ ")
-          .append(String.format("%.2f", pedido.getPreco()))
-          .append("\n");
+        texto.append("\nItens:\n");
 
-        sb.append("Obs     : ").append(
-            pedido.getObservacoes() != null ? pedido.getObservacoes() : "Nenhuma"
-        ).append("\n");
+        for (ItemPedido item : pedido.getItens()) {
+            texto.append(" - ").append(item.getProduto().getNome())
+                 .append("  x").append(item.getQuantidade())
+                 .append("  R$ ").append(String.format("%.2f", item.getPreco())).append("\n");
+        }
 
-        sb.append("==============================\n\n");
+        texto.append("\nTOTAL   : R$ ").append(String.format("%.2f", pedido.getPreco())).append("\n");
 
-        return sb.toString();
+        if (pedido.getObservacoes() != null && !pedido.getObservacoes().isEmpty()) {
+            texto.append("Obs     : ").append(pedido.getObservacoes()).append("\n");
+        }
+
+        texto.append("\n------------------------------\n");
+
+        return texto.toString();
     }
 
     
