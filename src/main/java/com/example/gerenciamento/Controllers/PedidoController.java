@@ -142,7 +142,6 @@ public class PedidoController {
         }
     }
 
- // Geração do texto formatado para a impressora
     private String formatarParaImpressora(Pedido pedido) {
         StringBuilder sb = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -151,37 +150,55 @@ public class PedidoController {
           .append(pedido.getId())
           .append(" ===========\n");
 
-        sb.append("Cliente : ").append(pedido.getCliente().getNome()).append("\n");
-        sb.append("Telefone: ").append(pedido.getCliente().getTelefone()).append("\n");
-
-        LocalDateTime dataHora = pedido.getDataPedido()
-            .toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime();
-        sb.append("Data    : ").append(dataHora.format(formatter)).append("\n");
-
-        sb.append("Entrega : ").append(pedido.isEntrega() ? "SIM" : "NÃO").append("\n");
-        sb.append("Endereço: ").append(
-            pedido.getEnderecoCliente() != null ? pedido.getEnderecoCliente() : "N/A"
-        ).append("\n");
-
-        sb.append("\nItens:\n");
-
-        for (ItemPedido item : pedido.getItens()) {
-            String nome = item.getProduto().getNome();
-            int qtd = item.getQuantidade();
-            double preco = item.getPreco();
-
-            sb.append(String.format(" - %-20s x%-2d R$ %6.2f\n", nome, qtd, preco));
+        // Cliente
+        if (pedido.getCliente() != null) {
+            sb.append("Cliente : ").append(pedido.getCliente().getNome()).append("\n");
+            sb.append("Telefone: ").append(pedido.getCliente().getTelefone()).append("\n");
         }
 
+        // Data
+        if (pedido.getDataPedido() != null) {
+            LocalDateTime dataHora = pedido.getDataPedido()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+            sb.append("Data    : ").append(dataHora.format(formatter)).append("\n");
+        }
+
+        // Entrega
+        sb.append("Entrega : ").append(pedido.isEntrega() ? "SIM" : "NÃO").append("\n");
+
+        // Endereço
+        if (pedido.getEnderecoCliente() != null && !pedido.getEnderecoCliente().isBlank()) {
+            sb.append("Endereço: ").append(pedido.getEnderecoCliente()).append("\n");
+        }
+
+        // Itens
+        sb.append("\nItens:\n");
+        if (pedido.getItens() != null && !pedido.getItens().isEmpty()) {
+            for (ItemPedido item : pedido.getItens()) {
+                if (item.getProduto() != null) {
+                    String nome = item.getProduto().getNome();
+                    int qtd = item.getQuantidade();
+                    double preco = item.getPreco();
+                    sb.append(String.format(" - %-20s x%-2d R$ %6.2f\n", nome, qtd, preco));
+                }
+            }
+        } else {
+            sb.append("Nenhum item encontrado.\n");
+        }
+
+        // Total
         sb.append("\nTOTAL   : R$ ")
           .append(String.format("%.2f", pedido.getPreco()))
           .append("\n");
 
-        sb.append("Obs     : ").append(
-            pedido.getObservacoes() != null ? pedido.getObservacoes() : "Nenhuma"
-        ).append("\n");
+        // Observações
+        if (pedido.getObservacoes() != null && !pedido.getObservacoes().isBlank()) {
+            sb.append("Obs     : ").append(pedido.getObservacoes()).append("\n");
+        } else {
+            sb.append("Obs     : Nenhuma\n");
+        }
 
         sb.append("==============================\n\n");
 
