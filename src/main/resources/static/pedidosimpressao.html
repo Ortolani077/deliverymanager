@@ -505,81 +505,35 @@
 	  async function confirmarImpressao() {
 	      if (!idParaImprimir || !botaoAtual) return;
 
+	      // Desabilita o botão durante o processamento
 	      botaoAtual.disabled = true;
 	      botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
 
 	      try {
+	          // Busca os dados para impressão
 	          const response = await fetch(
 	              `https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/dados-para-impressao`
 	          );
 
-	          if (!response.ok) throw new Error("Erro ao buscar dados para impressão.");
+	          if (!response.ok) {
+	              throw new Error("Erro ao buscar dados para impressão.");
+	          }
 
 	          const texto = await response.text();
-	          console.log("Texto recebido para impressão:", texto); // Verificação crítica
+	          console.log("Texto recebido para impressão:", texto);
 
-	          // --- Nova implementação do iframe ---
-	          const iframeId = 'iframe-impressao-' + Date.now();
-	          const iframe = document.createElement("iframe");
-	          iframe.id = iframeId;
-	          iframe.style.position = "fixed";
-	          iframe.style.right = "0";
-	          iframe.style.bottom = "0";
-	          iframe.style.width = "0";
-	          iframe.style.height = "0";
-	          iframe.style.border = "none";
-	          iframe.style.visibility = "hidden";
+	          // Limpa o texto removendo possíveis duplicações
+	          const textoLimpo = limparTextoParaImpressao(texto);
+	          console.log("Texto processado para impressão:", textoLimpo);
 
+	          // Cria e configura o iframe para impressão
+	          const iframe = criarIframeImpressao(idParaImprimir, textoLimpo);
 	          document.body.appendChild(iframe);
 
-	          iframe.onload = function() {
-	              setTimeout(() => {
-	                  try {
-	                      iframe.contentWindow.focus(); // Foco necessário para alguns navegadores
-	                      iframe.contentWindow.print();
-	                      
-	                      // Remove o iframe após um tempo seguro
-	                      setTimeout(() => {
-	                          if (document.body.contains(iframe)) {
-	                              document.body.removeChild(iframe);
-	                          }
-	                      }, 3000); // Tempo aumentado para ambientes remotos
-	                  } catch (e) {
-	                      console.error("Erro durante impressão:", e);
-	                      mostrarMensagem('Falha na impressão', 'error');
-	                      document.body.removeChild(iframe);
-	                  }
-	              }, 500); // Tempo maior para carregamento completo
-	          };
+	          // Configura o evento de impressão
+	          configurarEventoImpressao(iframe);
 
-	          // Conteúdo simplificado e mais robusto
-	          iframe.srcdoc = `
-	              <!DOCTYPE html>
-	              <html>
-	                  <head>
-	                      <title>Pedido #${idParaImprimir}</title>
-	                      <style>
-	                          body { 
-	                              font-family: monospace; 
-	                              margin: 0; 
-	                              padding: 10px;
-	                              font-size: 14px;
-	                          }
-	                          @media print {
-	                              body { margin: 0; }
-	                              @page { margin: 5mm; }
-	                          }
-	                      </style>
-	                  </head>
-	                  <body>
-	                      <pre>${texto.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-	                  </body>
-	              </html>
-	          `;
-
-	          // --- Fim da nova implementação ---
-
-	          // Atualiza o status após um tempo seguro
+	          // Atualiza a interface após um tempo seguro
 	          setTimeout(async () => {
 	              await carregarPedidos();
 	              mostrarMensagem('Pedido enviado para impressão!', 'success');
@@ -593,6 +547,110 @@
 	          botaoAtual.disabled = false;
 	          fecharModal();
 	      }
+	  }
+
+	  // Função auxiliar para limpar o texto da impressão
+	  function limparTextoParaImpressao(texto) {
+	      // Remove espaços extras e linhas duplicadas
+	      const linhas = texto.split('\n')
+	          .map(linha => linha.trim())
+	          .filter(linha => linha.length > 0);
+	      
+	      // Remove duplicatas consecutivas
+	      const linhasUnicas = [];
+	      let ultimaLinha = '';
+	      
+	      for (const linha of linhas) {
+	          if (linha !== ultimaLinha) {
+	              linhasUnicas.push(linha);
+	              ultimaLinha = linha;
+	          }
+	      }
+	      
+	      return linhasUnicas.join('\n') + '\n\n'; // Adiciona quebras no final
+	  }
+
+	  // Função auxiliar para criar o iframe de impressão
+	  function criarIframeImpressao(idPedido, texto) {
+	      const iframe = document.createElement("iframe");
+	      iframe.id = 'iframe-impressao-' + Date.now();
+	      
+	      // Estilo para ocultar o iframe
+	      Object.assign(iframe.style, {
+	          position: "fixed",
+	          right: "0",
+	          bottom: "0",
+	          width: "0",
+	          height: "0",
+	          border: "none",
+	          visibility: "hidden"
+	      });
+	      
+	      // Conteúdo otimizado para impressão térmica
+	      iframe.srcdoc = `
+	          <!DOCTYPE html>
+	          <html>
+	              <head>
+	                  <title>Pedido #${idPedido}</title>
+	                  <style>
+	                      body {
+	                          font-family: 'Courier New', monospace;
+	                          font-size: 12px;
+	                          margin: 0;
+	                          padding: 2mm;
+	                          white-space: pre;
+	                      }
+	                      @media print {
+	                          @page {
+	                              margin: 0;
+	                              size: auto;
+	                          }
+	                          body {
+	                              margin: 1mm;
+	                          }
+	                      }
+	                  </style>
+	              </head>
+	              <body>
+	                  <pre>${texto.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+	              </body>
+	          </html>
+	      `;
+	      
+	      return iframe;
+	  }
+
+	  // Função auxiliar para configurar os eventos de impressão
+	  function configurarEventoImpressao(iframe) {
+	      iframe.onload = function() {
+	          setTimeout(() => {
+	              try {
+	                  // Foca no iframe e inicia a impressão
+	                  iframe.contentWindow.focus();
+	                  iframe.contentWindow.print();
+	                  
+	                  // Remove o iframe após um tempo seguro
+	                  setTimeout(() => {
+	                      if (document.body.contains(iframe)) {
+	                          document.body.removeChild(iframe);
+	                      }
+	                  }, 3000);
+	              } catch (e) {
+	                  console.error("Erro durante impressão:", e);
+	                  mostrarMensagem('Falha na impressão', 'error');
+	                  if (document.body.contains(iframe)) {
+	                      document.body.removeChild(iframe);
+	                  }
+	              }
+	          }, 500);
+	      };
+	      
+	      // Fallback caso o onload não dispare
+	      setTimeout(() => {
+	          if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+	              iframe.onload();
+	          }
+	      }, 1000);
 	  }
 
       function mostrarMensagem(texto, tipo) {
