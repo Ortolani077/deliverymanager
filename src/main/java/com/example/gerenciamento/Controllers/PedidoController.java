@@ -152,18 +152,12 @@ public class PedidoController {
         StringBuilder sb = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        // Função para limpar acentos
-        String limpar(String texto) {
-            return Normalizer.normalize(texto, Normalizer.Form.NFD)
-                             .replaceAll("[^\\p{ASCII}]", "");
-        }
-
-        sb.append("======= PEDIDO Nº ")
+        sb.append("=========== PEDIDO Nº ")
           .append(pedido.getId())
-          .append(" =======\n");
+          .append(" ===========\n");
 
-        sb.append("Cliente : ").append(limpar(pedido.getCliente().getNome())).append("\n");
-        sb.append("Telefone: ").append(limpar(pedido.getCliente().getTelefone())).append("\n");
+        sb.append("Cliente : ").append(pedido.getCliente().getNome()).append("\n");
+        sb.append("Telefone: ").append(pedido.getCliente().getTelefone()).append("\n");
 
         LocalDateTime dataHora = pedido.getDataPedido()
             .toInstant()
@@ -171,16 +165,15 @@ public class PedidoController {
             .toLocalDateTime();
         sb.append("Data    : ").append(dataHora.format(formatter)).append("\n");
 
-        sb.append("Entrega : ").append(pedido.isEntrega() ? "SIM" : "NAO").append("\n");
-        sb.append("Endereco: ").append(
-            pedido.getEnderecoCliente() != null ? limpar(pedido.getEnderecoCliente()) : "N/A"
+        sb.append("Entrega : ").append(pedido.isEntrega() ? "SIM" : "NÃO").append("\n");
+        sb.append("Endereço: ").append(
+            pedido.getEnderecoCliente() != null ? pedido.getEnderecoCliente() : "N/A"
         ).append("\n");
 
         sb.append("\nItens:\n");
 
         for (ItemPedido item : pedido.getItens()) {
-            String nome = limpar(item.getProduto().getNome());
-            if (nome.length() > 20) nome = nome.substring(0, 20); // limite para não quebrar a linha
+            String nome = item.getProduto().getNome();
             int qtd = item.getQuantidade();
             double preco = item.getPreco();
 
@@ -192,7 +185,7 @@ public class PedidoController {
           .append("\n");
 
         sb.append("Obs     : ").append(
-            pedido.getObservacoes() != null ? limpar(pedido.getObservacoes()) : "Nenhuma"
+            pedido.getObservacoes() != null ? pedido.getObservacoes() : "Nenhuma"
         ).append("\n");
 
         sb.append("==============================\n\n");
