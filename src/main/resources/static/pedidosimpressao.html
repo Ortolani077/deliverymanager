@@ -483,41 +483,42 @@
       botaoAtual = null;
     }
 
-    async function confirmarImpressao() {
-      if (!idParaImprimir || !botaoAtual) return;
+	async function confirmarImpressao() {
+	  if (!idParaImprimir || !botaoAtual) return;
 
-      botaoAtual.disabled = true;
-      botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
+	  botaoAtual.disabled = true;
+	  botaoAtual.innerHTML = '<span class="material-icons">hourglass_top</span> Processando...';
 
-      try {
-        const response = await fetch(
-          `https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/imprimir`, 
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            credentials: 'same-origin'
-          }
-        );
+	  try {
+	    const response = await fetch(
+	      `https://deliverymanager.onrender.com/api/pedidos/${idParaImprimir}/dados-para-impressao`
+	    );
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          throw new Error(errorData?.message || `Erro ao imprimir: Status ${response.status}`);
-        }
+	    if (!response.ok) {
+	      throw new Error("Erro ao buscar dados para impressão.");
+	    }
 
-        mostrarMensagem('Pedido impresso com sucesso!', 'success');
-        await carregarPedidos();
-      } catch (error) {
-        console.error('Erro ao imprimir pedido:', error);
-        mostrarMensagem(error.message, 'error');
-        botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
-      } finally {
-        botaoAtual.disabled = false;
-        fecharModal();
-      }
-    }
+	    const texto = await response.text();
+
+	    // Abre nova janela com o conteúdo e chama window.print()
+	    const janela = window.open('', '_blank');
+	    janela.document.write(`<pre style="font-family: monospace;">${texto}</pre>`);
+	    janela.document.close();
+	    janela.focus();
+	    janela.print();
+
+	    mostrarMensagem('Pedido impresso com sucesso!', 'success');
+	    await carregarPedidos();
+	  } catch (error) {
+	    console.error('Erro ao imprimir pedido:', error);
+	    mostrarMensagem(error.message, 'error');
+	    botaoAtual.innerHTML = `<span class="material-icons">print</span> Tentar novamente`;
+	  } finally {
+	    botaoAtual.disabled = false;
+	    fecharModal();
+	  }
+	}
+
 
     function mostrarMensagem(texto, tipo) {
       const msg = document.getElementById('mensagem');
