@@ -34,7 +34,7 @@ import com.example.gerenciamento.Entities.PedidoFormDTO;
 import com.example.gerenciamento.Entities.ViewPedidosParaImpressao;
 import com.example.gerenciamento.Services.PedidoService;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://deliverymanager.onrender.com")
 @RestController
 @RequestMapping("/api/pedidos")
 public class PedidoController {
