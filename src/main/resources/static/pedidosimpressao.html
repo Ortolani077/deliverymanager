@@ -501,16 +501,47 @@
           const texto = await response.text();
 
           // Cria um iframe invisível para impressão
-          const iframe = document.createElement('iframe');
-          iframe.style.position = 'fixed';
-          iframe.style.right = '0';
-          iframe.style.bottom = '0';
-          iframe.style.width = '0';
-          iframe.style.height = '0';
-          iframe.style.border = 'none';
-          iframe.style.visibility = 'hidden';
-          
-         
+		  const iframe = document.createElement("iframe");
+		  iframe.style.position = "absolute";
+		  iframe.style.width = "0";
+		  iframe.style.height = "0";
+		  iframe.style.border = "0";
+		  document.body.appendChild(iframe);
+
+		  // Escreve o conteúdo no iframe
+		  iframe.contentDocument.open();
+		  iframe.contentDocument.write(`
+		    <!DOCTYPE html>
+		    <html>
+		      <head>
+		        <title>Impressão</title>
+		        <style>
+		          pre { 
+		            font-family: monospace; 
+		            white-space: pre-wrap;
+		            margin: 20px;
+		          }
+		          @media print {
+		            body { margin: 0; padding: 0; }
+		          }
+		        </style>
+		      </head>
+		      <body>
+		        <pre>${texto}</pre>
+		        <script>
+		          window.onload = function() {
+		            setTimeout(function() {
+		              window.print();
+		              setTimeout(function() {
+		                window.parent.document.body.removeChild(window.frameElement);
+		              }, 200); // Remove o iframe após impressão
+		            }, 100);
+		          };
+		        <\/script>
+		      </body>
+		    </html>
+		  `);
+		  iframe.contentDocument.close();
 
           mostrarMensagem('Pedido impresso com sucesso!', 'success');
           await carregarPedidos();
