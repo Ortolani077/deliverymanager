@@ -40,7 +40,7 @@ function logout() {
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
         localStorage.removeItem('token');
         setTimeout(() => {
-            window.location.replace('http://localhost:8082/index.html');
+            window.location.replace('https://deliverymanager.onrender.com/');
         }, 100);
     })
     .catch(error => {
