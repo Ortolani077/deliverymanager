@@ -183,4 +183,17 @@ public class PedidoController {
         Doc doc = new SimpleDoc(bytes, DocFlavor.BYTE_ARRAY.AUTOSENSE, null);
         job.print(doc, null);
     }
+    
+    
+    @GetMapping("/{id}/dados-para-impressao")
+    public ResponseEntity<?> obterTextoParaImpressao(@PathVariable Long id) {
+        Pedido pedido = pedidoService.buscarPedidoPorId(id);
+        if (pedido == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido não encontrado.");
+        }
+
+        String texto = formatarParaImpressora(pedido);
+        return ResponseEntity.ok(texto);
+    }
+
 }
