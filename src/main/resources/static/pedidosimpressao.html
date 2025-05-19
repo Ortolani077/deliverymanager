@@ -500,21 +500,31 @@
 
 	    const texto = await response.text();
 
-	    // Cria um container oculto para o conteúdo da impressão
-	    const divImpressao = document.createElement('div');
-	    divImpressao.style.position = 'fixed';
-	    divImpressao.style.left = '-9999px'; // fora da tela
-	    divImpressao.style.whiteSpace = 'pre-wrap'; // para respeitar quebras de linha
-	    divImpressao.style.fontFamily = 'monospace';
-	    divImpressao.innerText = texto;
-
-	    document.body.appendChild(divImpressao);
-
-	    // Chama o print na mesma aba, com o conteúdo do div
-	    window.print();
-
-	    // Remove o container depois da impressão
-	    document.body.removeChild(divImpressao);
+	    // Cria um iframe invisível para impressão
+	    const iframe = document.createElement('iframe');
+	    iframe.style.position = 'absolute';
+	    iframe.style.left = '-9999px';
+	    iframe.style.top = '0';
+	    iframe.style.width = '0';
+	    iframe.style.height = '0';
+	    iframe.style.border = 'none';
+	    
+	    document.body.appendChild(iframe);
+	    
+	    // Escreve o conteúdo no iframe
+	    iframe.contentDocument.write(`<pre style="font-family: monospace;">${texto}</pre>`);
+	    iframe.contentDocument.close();
+	    
+	    // Quando o iframe estiver carregado, imprime
+	    iframe.onload = function() {
+	      iframe.contentWindow.focus();
+	      iframe.contentWindow.print();
+	      
+	      // Remove o iframe após a impressão (opcional)
+	      setTimeout(() => {
+	        document.body.removeChild(iframe);
+	      }, 1000);
+	    };
 
 	    mostrarMensagem('Pedido impresso com sucesso!', 'success');
 	    await carregarPedidos();
@@ -527,7 +537,6 @@
 	    fecharModal();
 	  }
 	}
-
 
     function mostrarMensagem(texto, tipo) {
       const msg = document.getElementById('mensagem');
