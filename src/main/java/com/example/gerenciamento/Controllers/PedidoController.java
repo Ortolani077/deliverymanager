@@ -195,21 +195,18 @@ public class PedidoController {
 
     
 
-    // Envio do texto para a impressora térmica padrão
     private void enviarParaImpressoraTermica(String texto) throws Exception {
         PrintService printService = PrintServiceLookup.lookupDefaultPrintService();
         if (printService == null) {
             throw new Exception("Nenhuma impressora térmica padrão encontrada.");
         }
 
-        // Evita caracteres que impressoras térmicas simples não entendem
         byte[] bytes = texto.replaceAll("[^\\x00-\\x7F]", "").getBytes("CP437");
 
         DocPrintJob job = printService.createPrintJob();
         Doc doc = new SimpleDoc(bytes, DocFlavor.BYTE_ARRAY.AUTOSENSE, null);
         job.print(doc, null);
     }
-    
     
     @GetMapping("/{id}/dados-para-impressao")
     public ResponseEntity<?> obterTextoParaImpressao(@PathVariable Long id) {
