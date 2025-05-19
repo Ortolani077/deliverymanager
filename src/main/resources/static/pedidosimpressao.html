@@ -500,12 +500,21 @@
 
 	    const texto = await response.text();
 
-	    // Abre nova janela com o conteúdo e chama window.print()
-	    const janela = window.open('', '_blank');
-	    janela.document.write(`<pre style="font-family: monospace;">${texto}</pre>`);
-	    janela.document.close();
-	    janela.focus();
-	    janela.print();
+	    // Cria um container oculto para o conteúdo da impressão
+	    const divImpressao = document.createElement('div');
+	    divImpressao.style.position = 'fixed';
+	    divImpressao.style.left = '-9999px'; // fora da tela
+	    divImpressao.style.whiteSpace = 'pre-wrap'; // para respeitar quebras de linha
+	    divImpressao.style.fontFamily = 'monospace';
+	    divImpressao.innerText = texto;
+
+	    document.body.appendChild(divImpressao);
+
+	    // Chama o print na mesma aba, com o conteúdo do div
+	    window.print();
+
+	    // Remove o container depois da impressão
+	    document.body.removeChild(divImpressao);
 
 	    mostrarMensagem('Pedido impresso com sucesso!', 'success');
 	    await carregarPedidos();
