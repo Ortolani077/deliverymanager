@@ -32,19 +32,20 @@
       background-color: #f5f7fa;
       color: #333;
       line-height: 1.6;
+      min-height: 100vh;
     }
 
     .container {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 15px;
     }
 
     header {
       background-color: var(--primary-color);
       color: var(--white);
-      padding: 20px 0;
-      margin-bottom: 30px;
+      padding: 15px 0;
+      margin-bottom: 20px;
       box-shadow: var(--shadow);
     }
 
@@ -54,35 +55,38 @@
       align-items: center;
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0 15px;
     }
 
     h1 {
       font-weight: 500;
-      font-size: 24px;
+      font-size: 1.5rem;
     }
 
     .actions-bar {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     button {
       background-color: var(--accent-color);
       color: var(--white);
-      padding: 10px 16px;
+      padding: 10px 14px;
       border: none;
       border-radius: var(--border-radius);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-size: 14px;
       font-weight: 500;
       transition: all 0.3s ease;
       box-shadow: var(--shadow);
+      white-space: nowrap;
     }
 
     button:hover {
@@ -120,7 +124,7 @@
     }
 
     th, td {
-      padding: 15px;
+      padding: 12px 10px;
       text-align: left;
       border-bottom: 1px solid var(--light-gray);
     }
@@ -171,9 +175,10 @@
     #modal {
       display: none;
       position: fixed;
-      width: 400px;
+      width: 90%;
+      max-width: 400px;
       background-color: var(--white);
-      padding: 30px;
+      padding: 25px;
       border-radius: var(--border-radius);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       top: 50%;
@@ -198,24 +203,26 @@
     }
 
     .modal-title {
-      font-size: 20px;
-      margin-bottom: 20px;
+      font-size: 1.25rem;
+      margin-bottom: 15px;
       color: var(--primary-color);
     }
 
     .modal-buttons {
       display: flex;
       justify-content: center;
-      gap: 15px;
-      margin-top: 25px;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
     }
 
     #mensagem {
       text-align: center;
-      margin: 20px 0;
+      margin: 15px 0;
       font-weight: 500;
-      padding: 12px;
+      padding: 10px;
       border-radius: var(--border-radius);
+      width: 100%;
     }
 
     .success-message {
@@ -230,17 +237,18 @@
 
     #notificacao {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 15px;
+      right: 15px;
       background-color: var(--success-color);
       color: var(--white);
-      padding: 15px 20px;
+      padding: 12px 16px;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       display: none;
       z-index: 1001;
       animation: fadeIn 0.3s, fadeOut 0.3s 4.5s;
-      max-width: 350px;
+      max-width: calc(100% - 30px);
+      width: 350px;
     }
 
     @keyframes fadeIn {
@@ -255,30 +263,161 @@
 
     .empty-state {
       text-align: center;
-      padding: 40px 20px;
+      padding: 30px 15px;
       color: var(--dark-gray);
     }
 
     .empty-state .material-icons {
       font-size: 48px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       color: var(--light-gray);
     }
 
+    /* Melhorias de responsividade para telas pequenas */
     @media (max-width: 768px) {
-      .actions-bar {
+      .container {
+        padding: 10px;
+      }
+      
+      .header-content {
         flex-direction: column;
         gap: 10px;
         align-items: flex-start;
       }
-
+      
+      .actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
       th, td {
-        padding: 10px;
+        padding: 10px 8px;
         font-size: 14px;
       }
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .modal-buttons button {
+        width: auto;
+        flex: 1;
+        min-width: 120px;
+      }
+    }
 
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+      
+      th, td {
+        padding: 8px 6px;
+        font-size: 13px;
+      }
+      
+      .status-badge {
+        font-size: 10px;
+        padding: 3px 6px;
+      }
+      
       #modal {
-        width: 90%;
+        padding: 20px;
+        width: 95%;
+      }
+      
+      .modal-title {
+        font-size: 1.1rem;
+      }
+      
+      .modal-buttons {
+        flex-direction: column;
+      }
+      
+      .modal-buttons button {
+        width: 100%;
+      }
+    }
+
+    /* Estilos para visualização em cards em dispositivos móveis */
+    .cards-view {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .table-view {
+        display: none;
+      }
+      
+      .cards-view {
+        display: block;
+      }
+      
+      .card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 15px;
+        padding: 15px;
+        position: relative;
+      }
+      
+      .card.impresso {
+        background-color: rgba(39, 174, 96, 0.1);
+      }
+      
+      .card.nao-impresso {
+        background-color: rgba(243, 156, 18, 0.1);
+      }
+      
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--light-gray);
+      }
+      
+      .card-id {
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+      
+      .card-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+      
+      .card-detail {
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+      }
+      
+      .card-label {
+        font-weight: 500;
+        color: var(--dark-gray);
+      }
+      
+      .card-actions {
+        margin-top: 15px;
+        text-align: center;
+      }
+      
+      .card-actions button {
+        width: 100%;
       }
     }
 
@@ -300,19 +439,13 @@
       }
     }
   </style>
-
 </head>
 <body>
 
   <header>
     <div class="header-content">
       <h1>Gestão de Pedidos</h1>
-      <button class="secondary" onclick="window.location.href= 'https://deliverymanager.onrender.com/inicio.html'">
-		
-		<!-- <button class="secondary" onclick="window.location.href='http://localhost:8082/inicio.html'">
-		  <span class="material-icons">arrow_back</span> Voltar
-		</button> -->
-
+      <button class="secondary" onclick="window.location.href='https://deliverymanager.onrender.com/inicio.html'">
         <span class="material-icons">arrow_back</span> Voltar
       </button>
     </div>
@@ -326,21 +459,27 @@
       <div id="mensagem"></div>
     </div>
 
-    <table id="tabelaPedidos">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Telefone</th>
-          <th>Data</th>
-          <th>Status</th>
-          <th>Itens</th>
-          <th>Total</th>
-          <th>Ação</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- Vista de tabela para desktop -->
+    <div class="table-view">
+      <table id="tabelaPedidos">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Telefone</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Itens</th>
+            <th>Total</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Vista de cards para móvel -->
+    <div class="cards-view" id="cardsContainer"></div>
 
     <div id="notificacao"></div>
 
@@ -418,6 +557,7 @@
 
           todosOsPedidos = pedidosNovos;
           atualizarTabela();
+          atualizarCards();
         } catch (error) {
           console.error('Erro ao carregar pedidos:', error);
           mostrarMensagem(error.message, 'error');
@@ -484,6 +624,76 @@
         });
       }
 
+      function atualizarCards() {
+        const cardsContainer = document.getElementById('cardsContainer');
+        cardsContainer.innerHTML = '';
+
+        if (todosOsPedidos.length === 0) {
+          cardsContainer.innerHTML = `
+            <div class="empty-state">
+              <span class="material-icons">assignment</span>
+              <p>Nenhum pedido encontrado</p>
+            </div>
+          `;
+          return;
+        }
+
+        todosOsPedidos.sort((a, b) => new Date(b.dataPedido) - new Date(a.dataPedido));
+
+        todosOsPedidos.forEach(pedido => {
+          // Verifica se o pedido está marcado como impresso
+          const estaImpresso = pedidosImpressos.has(pedido.id);
+          
+          if (estaImpresso && !mostrarImpressos) {
+            return; // Não mostra os impressos se estiverem ocultos
+          }
+
+          const card = document.createElement('div');
+          card.classList.add('card');
+          card.classList.add(estaImpresso ? 'impresso' : 'nao-impresso');
+
+          const itensHTML = (pedido.itens || []).map(item =>
+            `${item.produto?.nome || 'Produto'} (${item.quantidade}x)`
+          ).join(', ');
+
+          card.innerHTML = `
+            <div class="card-header">
+              <span class="card-id">#${pedido.id}</span>
+              <span class="card-status ${estaImpresso ? 'status-impresso' : 'status-pendente'}">
+                ${estaImpresso ? 'Impresso' : 'Pendente'}
+              </span>
+            </div>
+            <div class="card-detail">
+              <span class="card-label">Cliente:</span>
+              <span>${pedido.cliente?.nome || '---'}</span>
+            </div>
+            <div class="card-detail">
+              <span class="card-label">Telefone:</span>
+              <span>${formatarTelefone(pedido.cliente?.telefone) || '---'}</span>
+            </div>
+            <div class="card-detail">
+              <span class="card-label">Data:</span>
+              <span>${formatarData(pedido.dataPedido)}</span>
+            </div>
+            <div class="card-detail">
+              <span class="card-label">Itens:</span>
+              <span>${itensHTML}</span>
+            </div>
+            <div class="card-detail">
+              <span class="card-label">Total:</span>
+              <span>R$ ${(pedido.preco || 0).toFixed(2).replace('.', ',')}</span>
+            </div>
+            <div class="card-actions">
+              <button onclick="abrirModal(${pedido.id}, this)" class="${estaImpresso ? 'secondary' : 'success'}">
+                <span class="material-icons">print</span> ${estaImpresso ? 'Reimprimir' : 'Imprimir'}
+              </button>
+            </div>
+          `;
+
+          cardsContainer.appendChild(card);
+        });
+      }
+
       function formatarData(dataString) {
         if (!dataString) return '---';
         const data = new Date(dataString);
@@ -508,13 +718,9 @@
           ? '<span class="material-icons">visibility_off</span> Ocultar Impressos' 
           : '<span class="material-icons">visibility</span> Mostrar Impressos';
         
-        document.querySelectorAll('tr.impresso').forEach(tr => {
-          if (mostrarImpressos) {
-            tr.classList.remove('oculto');
-          } else {
-            tr.classList.add('oculto');
-          }
-        });
+        // Atualiza ambas as visualizações
+        atualizarTabela();
+        atualizarCards();
       }
 
       function abrirModal(id, botao) {
